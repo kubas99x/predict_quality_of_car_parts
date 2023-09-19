@@ -96,3 +96,27 @@ def create_final_status(final_table):
     final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc'], inplace=True)
 
     return final_table
+
+def normalize_data(final_table):
+
+    from sklearn.preprocessing import StandardScaler
+    import pandas as pd
+
+    # nowa zmienna przechowująca dane kategoryczne
+    categorical_data = final_table.loc[:, ['kod_pola', 'rodzaj_uszkodzenia']]
+
+    # zmiana typu danej z object na category
+    for column in categorical_data.columns:
+        categorical_data[column] = categorical_data[column].astype('category')
+
+    # normalizacja danych katgorycznych
+    categorical_data = pd.get_dummies(categorical_data, drop_first=True, dummy_na=True, dtype=int)
+    final_table.drop(columns=['kod_pola', 'rodzaj_uszkodzenia'], inplace=True)
+
+    # normalizacja danych numerycznych
+    final_table[final_table.select_dtypes(include=['number']).columns] = StandardScaler().fit_transform(final_table[final_table.select_dtypes(include=['number']).columns])
+
+    # łączenie znormalizowanych danych
+    final_table = pd.concat([final_table, categorical_data], axis=1)
+
+    return final_table
