@@ -1,0 +1,100 @@
+
+username = 'dmcro'
+password = 'ouZ9Rys7astDp4byjUvO'
+dsn = 'vwpnwrud0000rac:1521/dmc.vwg'
+dbhostname='vwpnwrud0000rac'
+service_name='dmc.vwg'
+
+dbtables = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KO_RODZAJ', 'MEB_KO_STREFA', 'MEB_KS', 'ONI_CIRCUITS']
+querys = [
+"""
+SELECT *
+FROM (
+  SELECT
+    t.*,
+    ROW_NUMBER() OVER (PARTITION BY DMC ORDER BY ID DESC) AS rn
+  FROM
+    Z3DMC.MEB_DGM t
+) subquery
+WHERE rn = 1
+""",
+"""
+SELECT *
+FROM Z3DMC.MEB_DMC
+WHERE (DMC <> 'null') AND (DMC <> 'NIECZYTELNY') AND (DMC_CASTING IS NOT NULL)
+""",
+"""
+SELECT *
+FROM (
+  SELECT
+    t.*,
+    ROW_NUMBER() OVER (PARTITION BY ID_DMC ORDER BY ID_MEB_GROB DESC) AS rn
+  FROM
+    Z3DMC.MEB_GROB t
+) subquery
+WHERE rn = 1
+""",
+"""
+SELECT *
+FROM (
+  SELECT
+    t.*,
+    ROW_NUMBER() OVER (PARTITION BY ID_DMC ORDER BY ID_KO DESC) AS rn
+  FROM
+    Z3DMC.MEB_KO t
+) subquery
+WHERE rn = 1
+""",
+"""
+SELECT *
+FROM (
+  SELECT
+    t.*,
+    ROW_NUMBER() OVER (PARTITION BY ID_DMC ORDER BY ID_KO DESC) AS rn
+  FROM
+    Z3DMC.MEB_KO_DGM t
+  WHERE ID_DMC <> 0
+) subquery
+WHERE rn = 1
+""",
+"""
+SELECT *
+FROM Z3DMC.MEB_KO_RODZAJ
+""",
+"""
+SELECT *
+FROM Z3DMC.MEB_KO_STREFA
+""",
+"""
+SELECT *
+FROM (
+  SELECT
+    t.*,
+    ROW_NUMBER() OVER (PARTITION BY ID_DMC ORDER BY ID_KS DESC) AS rn
+  FROM
+    Z3DMC.MEB_KS t
+) subquery
+WHERE rn = 1
+""",
+"""
+SELECT ID_DMC, CIRCUIT_NR, 
+MAX(ASSIGMENT) AS ASSIGMENT, 
+MAX(FLOW) AS FLOW, 
+MAX(SET_POINT) AS SET_POINT,
+MAX(START_DELAY) AS START_DELAY,
+MAX(TEMP) AS TEMP,
+MAX(WORKING_MODE) AS WORKING_MODE
+FROM Z3DMC.ONI_CIRCUITS
+GROUP BY ID_DMC, CIRCUIT_NR
+ORDER BY ID_DMC
+"""
+#SELECT *
+#FROM (
+#  SELECT
+#    t.*,
+#    ROW_NUMBER() OVER (PARTITION BY ID_DMC ORDER BY ID_CIRCUIT DESC) AS rn
+#  FROM
+#    Z3DMC.ONI_CIRCUITS t
+#) subquery
+#WHERE rn = 1
+]
