@@ -1,3 +1,6 @@
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+
 def drop_unused_columns(data):
 
     dbtables = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KS']
@@ -93,14 +96,14 @@ def create_final_status(final_table):
 
     final_table['our_final_status'] = final_table.apply(lambda row: max(int(row['status']), row['status_ko'], row['statusszczelnosc'], row['statusdmc']), axis=1)
     print(final_table['our_final_status'].value_counts())
-    final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc'], inplace=True)
+    final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
+                              'id', 'nr_dgm', 'part_type', 'nrprogramu', 'id_dmc_DGM', 
+                              'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
+                              'dmc_DMC', 'dmc_casting'], inplace=True)
 
     return final_table
 
 def normalize_data(final_table):
-
-    from sklearn.preprocessing import StandardScaler
-    import pandas as pd
 
     # nowa zmienna przechowująca dane kategoryczne
     categorical_data = final_table.loc[:, ['kod_pola', 'rodzaj_uszkodzenia']]
