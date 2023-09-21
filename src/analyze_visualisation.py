@@ -1,4 +1,6 @@
 import os
+import seaborn as sns
+
 def make_and_save_pariplot(whole_df ,columns_to_analyze, file_name):
 
     plot = sns.pairplot(data=whole_df[columns_to_analyze + ['our_final_status']], hue="our_final_status", palette={ 1 : "green", 2:"red"}, plot_kws={"s": 3})
