@@ -4,10 +4,11 @@ import pandas as pd
 def drop_unused_columns(data):
 
     dbtables = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KS']
-    columns = [['timestamp', 'data_znakowania', 'data_odlania', 'metal_level', 'metal_pressure'],                                           #MEB_DGM
+    columns = [['timestamp', 'data_znakowania', 'data_odlania', 'metal_level', 'metal_pressure', 'max_press_kolbenhub'],                    #MEB_DGM
     ['timestamp', 'update_time','id_meb_containers', 'packed_time', 'first_packed_time', 'production_step', 'status_koncowy'],              #MEB_DMC
     ['id_meb_grob', 'shift_number', 'last_operation', 'timestamp', 'production_date', 'reworkrequested',                                    
-    'reworkdone', 'partcleaningisfinished', 'waitfortoolcheck', 'workingstep1', 'workingstep2', 'workingstep3', 'workingstep4', 'mms_ok'],  #MEB_GROB
+    'reworkdone', 'partcleaningisfinished', 'waitfortoolcheck', 'workingstep1', 'workingstep2', 
+    'workingstep3', 'workingstep4', 'mms_ok', 'last_machine_number', 'last_pcf_number', 'machine_nr'],                                      #MEB_GROB
     ['id_ko', 'data', 'timestamp', 'eks'],                                                                                                  #MEB_KO
     ['id_ko','data_odlania', 'timestamp', 'operator'],                                                                                      #MEB_KO_DGM
     ['id_ks', 'nrgniazda', 'liczbawystapien', 'nrformy', 'data', 'timestamp', 'gradedmc_max','gradedmc_aktualny']]                          #MEB_KS
@@ -54,7 +55,7 @@ def combine_final_table(data):
     data['MEB_DMC'].drop(columns=['rn'], inplace=True)
 
     # przygotowywuję tabelę ONI_CIRCUITS do połączenia 
-    oni_circuits = data['ONI_CIRCUITS'].pivot(index='id_dmc', columns='circuit_nr', values=['assigment', 'flow', 'set_point', 'start_delay', 'working_mode', 'temp'])
+    oni_circuits = data['ONI_CIRCUITS'].pivot(index='id_dmc', columns='circuit_nr', values=['assigment', 'flow', 'set_point', 'start_delay', 'temp'])
     oni_circuits.columns = oni_circuits.columns.map('{0[0]}_{0[1]}'.format) 
     oni_circuits.reset_index(inplace=True)
 
@@ -99,7 +100,7 @@ def create_final_status(final_table):
     final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
                               'id', 'nr_dgm', 'part_type', 'nrprogramu', 'id_dmc_DGM', 
                               'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
-                              'dmc_DMC', 'dmc_casting'], inplace=True)
+                              'dmc_DMC', 'dmc_casting', 'nok_strefa', 'nok_rodzaj'], inplace=True)
 
     return final_table
 
@@ -107,6 +108,7 @@ def normalize_data(final_table):
 
     # nowa zmienna przechowująca dane kategoryczne
     categorical_data = final_table.loc[:, ['kod_pola', 'rodzaj_uszkodzenia']]
+    final_status = final_table['our_final_status']
 
     # zmiana typu danej z object na category
     for column in categorical_data.columns:
@@ -114,12 +116,12 @@ def normalize_data(final_table):
 
     # normalizacja danych katgorycznych
     categorical_data = pd.get_dummies(categorical_data, drop_first=True, dummy_na=True, dtype=int)
-    final_table.drop(columns=['kod_pola', 'rodzaj_uszkodzenia'], inplace=True)
+    final_table.drop(columns=['kod_pola', 'rodzaj_uszkodzenia', 'our_final_status'], inplace=True)
 
     # normalizacja danych numerycznych
     final_table[final_table.select_dtypes(include=['number']).columns] = StandardScaler().fit_transform(final_table[final_table.select_dtypes(include=['number']).columns])
 
     # łączenie znormalizowanych danych
-    final_table = pd.concat([final_table, categorical_data], axis=1)
+    final_table = pd.concat([final_table, categorical_data, final_status], axis=1)
 
     return final_table
