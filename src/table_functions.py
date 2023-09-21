@@ -106,22 +106,17 @@ def create_final_status(final_table):
 
 def normalize_data(final_table):
 
-    # nowa zmienna przechowująca dane kategoryczne
-    categorical_data = final_table.loc[:, ['kod_pola', 'rodzaj_uszkodzenia']]
-    final_status = final_table['our_final_status']
+    categorical_columns = [f'assigment_{x}' for x in range(1, 29)]
+    categorical_data = final_table[categorical_columns].astype('category')
+    categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
+    categorical_data
 
-    # zmiana typu danej z object na category
-    for column in categorical_data.columns:
-        categorical_data[column] = categorical_data[column].astype('category')
+    neutral_columns = ['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status']
+    neutral_data = final_table[neutral_columns].astype('category')
+    categorical_columns.extend(neutral_columns)
+    final_table.drop(columns=categorical_columns, inplace=True)
 
-    # normalizacja danych katgorycznych
-    categorical_data = pd.get_dummies(categorical_data, drop_first=True, dummy_na=True, dtype=int)
-    final_table.drop(columns=['kod_pola', 'rodzaj_uszkodzenia', 'our_final_status'], inplace=True)
-
-    # normalizacja danych numerycznych
-    final_table[final_table.select_dtypes(include=['number']).columns] = StandardScaler().fit_transform(final_table[final_table.select_dtypes(include=['number']).columns])
-
-    # łączenie znormalizowanych danych
-    final_table = pd.concat([final_table, categorical_data, final_status], axis=1)
+    final_table[final_table.columns] = StandardScaler().fit_transform(final_table[final_table.columns])
+    final_table = pd.concat([final_table, categorical_data, neutral_data], axis=1)
 
     return final_table
