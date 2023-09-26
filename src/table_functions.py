@@ -55,7 +55,7 @@ def combine_final_table(data):
     data['MEB_DMC'].drop(columns=['rn'], inplace=True)
 
     # przygotowywuję tabelę ONI_CIRCUITS do połączenia 
-    oni_circuits = data['ONI_CIRCUITS'].pivot(index='id_dmc', columns='circuit_nr', values=['assigment', 'flow', 'set_point', 'start_delay', 'temp'])
+    oni_circuits = data['ONI_CIRCUITS'].pivot(index='id_dmc', columns='circuit_nr', values=['assigment', 'flow', 'set_point', 'start_delay', 'temp', 'working_mode'])
     oni_circuits.columns = oni_circuits.columns.map('{0[0]}_{0[1]}'.format) 
     oni_circuits.reset_index(inplace=True)
 
@@ -106,10 +106,13 @@ def create_final_status(final_table):
 
 def normalize_data(final_table):
 
-    categorical_columns = [f'assigment_{x}' for x in range(1, 29)]
+    categorical_columns = []
+    for name in ['assigment', 'working_mode']:
+        for x in range(1,29):
+            categorical_columns.append(f'{name}_{x}')
+
     categorical_data = final_table[categorical_columns].astype('category')
     categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
-    categorical_data
 
     neutral_columns = ['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status']
     neutral_data = final_table[neutral_columns].astype('category')
