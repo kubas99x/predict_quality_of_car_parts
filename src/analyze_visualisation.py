@@ -43,3 +43,10 @@ def make_and_save_barchart(whole_df, col_to_plot, file_name):
     ax.legend()
 
     plt.savefig()
+
+def diff_between_dgm(whole_df, col_to_analyze):
+    mean_values_grouped = whole_df.groupby('nr_dgm')[col_to_analyze].mean()
+    percentage_difference = ((mean_values_grouped.iloc[1] - mean_values_grouped.iloc[0]) / mean_values_grouped.iloc[0]) * 100
+
+    print("Percentage Difference in Mean Values (nr_dgm=2 - nr_dgm=1):")
+    print(percentage_difference)

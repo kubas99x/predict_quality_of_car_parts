@@ -1,5 +1,6 @@
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
+import os
 
 def drop_unused_columns(data):
 
@@ -123,3 +124,14 @@ def normalize_data(final_table):
     final_table = pd.concat([final_table, categorical_data, neutral_data], axis=1)
 
     return final_table
+
+def save_df_to_csv(whole_df):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    whole_df.to_csv(os.path.join(parent_dir, 'not_in_repo', 'final_table.csv'), index= False)
+
+def read_csv():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    df = pd.read_csv(os.path.join(parent_dir, 'not_in_repo', 'final_table.csv'))
+    return df
