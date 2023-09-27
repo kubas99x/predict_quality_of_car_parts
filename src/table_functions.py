@@ -114,7 +114,7 @@ def normalize_data(final_table):
     categorical_data = final_table[categorical_columns].astype('category')
     categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
 
-    neutral_columns = ['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status']
+    neutral_columns = ['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
     neutral_data = final_table[neutral_columns].astype('category')
     categorical_columns.extend(neutral_columns)
     final_table.drop(columns=categorical_columns, inplace=True)
