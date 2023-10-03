@@ -1,4 +1,5 @@
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 import pandas as pd
 import os
 
@@ -150,3 +151,29 @@ def read_csv(file_name):
     parent_dir = os.path.dirname(current_dir)
     df = pd.read_csv(os.path.join(parent_dir, 'not_in_repo', file_name))
     return df
+
+def split_data(final_table):
+    columns = ['nr_dgm', 'rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
+               'temp_workpiece', 'temp_hydraulics', 'pressure_pcf_1', 'pressure_pcf_2', 
+               'pressure_pcf_3', 'cisnienie', 'przeciek', 'temperaturatestu', 'temp_pieca']
+    final_table.drop(columns=columns, inplace=True)
+
+    target = final_table.pop('our_final_status')
+
+    x_train, x_test, y_train, y_test = train_test_split(final_table, target, train_size=0.80, random_state=42, stratify=target)
+    x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
+
+    train = pd.concat([x_train, y_train], axis=1)
+
+    # oversampling
+    nok = train[train['our_final_status'] == 2].sample(n=270000, replace=True)
+
+    # undersampling
+    ok = train[train['our_final_status'] == 1].sample(n=300000)
+
+    train = pd.concat([ok, nok])
+
+    y_train = train.pop('our_final_status')
+    x_train = train
+
+    return x_train, x_valid, x_test, y_train, y_valid, y_test
