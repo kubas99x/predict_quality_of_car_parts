@@ -5,14 +5,14 @@ import os
 def drop_unused_columns(data):
 
     dbtables = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KS']
-    columns = [['timestamp', 'data_znakowania', 'data_odlania', 'metal_level', 'metal_pressure', 'max_press_kolbenhub'],                    #MEB_DGM
-    ['timestamp', 'update_time','id_meb_containers', 'packed_time', 'first_packed_time', 'production_step', 'status_koncowy'],              #MEB_DMC
+    columns = [['timestamp', 'data_znakowania', 'data_odlania', 'metal_level', 'metal_pressure', 'max_press_kolbenhub', 'oni_temp_curr_f2'],                    #MEB_DGM
+    ['timestamp', 'update_time','id_meb_containers', 'packed_time', 'first_packed_time', 'production_step', 'status_koncowy'],                                  #MEB_DMC
     ['id_meb_grob', 'shift_number', 'last_operation', 'timestamp', 'production_date', 'reworkrequested',                                    
     'reworkdone', 'partcleaningisfinished', 'waitfortoolcheck', 'workingstep1', 'workingstep2', 
-    'workingstep3', 'workingstep4', 'mms_ok', 'last_machine_number', 'last_pcf_number', 'machine_nr'],                                      #MEB_GROB
-    ['id_ko', 'data', 'timestamp', 'eks'],                                                                                                  #MEB_KO
-    ['id_ko','data_odlania', 'timestamp', 'operator'],                                                                                      #MEB_KO_DGM
-    ['id_ks', 'nrgniazda', 'liczbawystapien', 'nrformy', 'data', 'timestamp', 'gradedmc_max','gradedmc_aktualny']]                          #MEB_KS
+    'workingstep3', 'workingstep4', 'mms_ok', 'last_machine_number', 'last_pcf_number', 'machine_nr'],                                                          #MEB_GROB
+    ['id_ko', 'data', 'timestamp', 'eks'],                                                                                                                      #MEB_KO
+    ['id_ko','data_odlania', 'timestamp', 'operator'],                                                                                                          #MEB_KO_DGM
+    ['id_ks', 'nrgniazda', 'liczbawystapien', 'nrformy', 'data', 'timestamp', 'gradedmc_max','gradedmc_aktualny']]                                              #MEB_KS
 
     for table, column in zip(dbtables, columns):
         data[table].drop(columns=column, inplace=True)
