@@ -1,7 +1,9 @@
 import os
 import seaborn as sns
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+import plotly.express as px
+
 
 def make_and_save_pariplot(whole_df ,columns_to_analyze, file_name):
 
@@ -50,3 +52,11 @@ def diff_between_dgm(whole_df, col_to_analyze):
 
     print("Percentage Difference in Mean Values (nr_dgm=2 - nr_dgm=1):")
     print(percentage_difference)
+
+def make_box_plot(whole_df, column_name):
+
+    fig = px.box(whole_df, y = column_name)
+    fig.show()
+
+    biggest_value_with_1_status = whole_df[whole_df['our_final_status'] == 1][column_name].max()
+    print(biggest_value_with_1_status)

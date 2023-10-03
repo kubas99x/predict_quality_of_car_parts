@@ -89,12 +89,15 @@ def combine_final_table(data):
     return final_table
 
 def create_final_status(final_table):
+    # statusy dmc 2 zostały całkowicie wywalone (jest ich ok. 450)
+    # co do statusu szczelności to czasami na to wpływ ma porowatość wynikająca z odlewania,
+    # jednak jest dużo błędów wynikających z obróbki czy zepsutej uszczelki
 
     final_table = final_table[~final_table['status'].isin(['4', '5', '7', '8', '10', '11'])]
     final_table['status'] = final_table['status'].replace(['3', '14'], '2')
     final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])]
     final_table = final_table.loc[~final_table['statusszczelnosc'].isin([0, 3])]
-    final_table = final_table.loc[~final_table['statusdmc'].isin([0])]
+    final_table = final_table.loc[~final_table['statusdmc'].isin([0,2])]
 
     final_table['our_final_status'] = final_table.apply(lambda row: max(int(row['status']), row['status_ko'], row['statusszczelnosc'], row['statusdmc']), axis=1)
     print(final_table['our_final_status'].value_counts())
@@ -102,6 +105,18 @@ def create_final_status(final_table):
                               'id', 'part_type', 'nrprogramu', 'id_dmc_DGM', 
                               'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
                               'dmc_DMC', 'dmc_casting', 'nok_strefa', 'nok_rodzaj'], inplace=True)  # 'nr_dgm' na razie nie kasuje bo testuje dane - JR 25.09
+
+    return final_table
+
+def standarize_data(final_table):
+
+    # Ograniczamy wartość maksymalną danych do określonego limitu, by w mniejszym stopniu wpływało to na normalizacje
+
+    final_table.loc[final_table['nachdruck_hub'] > 1000, 'nachdruck_hub'] = 1000
+    final_table.loc[final_table['czas_fazy_1'] > 5000, 'czas_fazy_1'] = 5000
+    final_table.loc[final_table['czas_fazy_3'] > 3000, 'czas_fazy_3'] = 3000
+    final_table.loc[final_table['anguss'] > 800, 'anguss'] = 800
+    final_table.loc[final_table['vds_vac_hose1'] > 1000, 'vds_vac_hose1'] = 1000
 
     return final_table
 
@@ -125,13 +140,13 @@ def normalize_data(final_table):
 
     return final_table
 
-def save_df_to_csv(whole_df):
+def save_df_to_csv(whole_df, file_name):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
-    whole_df.to_csv(os.path.join(parent_dir, 'not_in_repo', 'final_table.csv'), index= False)
+    whole_df.to_csv(os.path.join(parent_dir, 'not_in_repo', file_name), index= False)
 
-def read_csv():
+def read_csv(file_name):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
-    df = pd.read_csv(os.path.join(parent_dir, 'not_in_repo', 'final_table.csv'))
+    df = pd.read_csv(os.path.join(parent_dir, 'not_in_repo', file_name))
     return df
