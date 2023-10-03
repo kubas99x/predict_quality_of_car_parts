@@ -1,6 +1,7 @@
 import os
 import seaborn as sns
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 
@@ -60,3 +61,32 @@ def make_box_plot(whole_df, column_name):
 
     biggest_value_with_1_status = whole_df[whole_df['our_final_status'] == 1][column_name].max()
     print(biggest_value_with_1_status)
+
+def describe_our_data(whole_df):
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.float_format', lambda x: '%.2f' % x)
+    print(whole_df.describe().T)
+
+
+def analyze_data(whole_df):
+    #function take random data from dataframe and make pairplots and heatmap for all data
+    status_1_data = whole_df[whole_df['our_final_status'] == 1].sample(n=200, random_state= 69)
+    status_2_data = whole_df[whole_df['our_final_status'] == 2].sample(n=200, random_state= 69)
+    random_to_analyze = pd.concat([status_1_data, status_2_data], ignore_index=True)
+
+    col_dgm = ['czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe','nachdruck_hub', 
+                  'anguss', 'temp_pieca', 'oni_temp_curr_f1', 'oni_temp_curr_f2', 'oni_temp_fore_f1', 'oni_temp_fore_f2', 'vds_air_pressure',
+                    'vds_vac_hose1', 'vds_vac_hose2', 'vds_vac_tank', 'vds_vac_valve1', 'vds_vac_valve2', 'czas_taktu']
+    col_flow = [f'flow_{n}' for n in range(1,29)]
+    col_delay = [f'start_delay_{n}' for n in range(1,29)]
+    col_temp = [f'temp_{n}' for n in range(1,29)]
+
+    make_and_save_pariplot(random_to_analyze, col_dgm, 'normalized_dirst_20_normalized.png')
+    make_and_save_pariplot(random_to_analyze, col_flow, 'normalized_flow_normalized.png')
+    make_and_save_pariplot(random_to_analyze, col_delay, 'normalize_delay_pairplot_normalized.png')
+    make_and_save_pariplot(random_to_analyze, col_temp, 'normalize_temp_pairplot_normalized.png')
+    make_and_save_heatmap(whole_df, col_dgm, 'cor1_hm.png')
+    make_and_save_heatmap(whole_df, col_flow, 'flow_heatmap.png')
+    make_and_save_heatmap(whole_df, col_delay, 'delay_heatmap.png')
+    make_and_save_heatmap(whole_df, col_temp, 'temp_heatmap.png')
