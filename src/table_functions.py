@@ -153,6 +153,19 @@ def read_csv(file_name):
     return df
 
 def split_data(final_table):
+    
+    # do modelowania:
+    'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
+    'oni_temp_curr_f2', 'oni_temp_fore_f1', 'oni_temp_fore_f2', 'vds_air_pressure', 'vds_vac_hose1', 'vds_vac_hose2', 'vds_vac_tank', 'vds_vac_valve1', 'vds_vac_valve2', 'czas_taktu',
+    #assigment_1-28, flow_1-28, set_point_1-28, start_delay_1-28. temp_1-28, working_mode_1-28
+
+    # nie do modelowania
+    'nr_dgm', 'rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 'temp_workpiece', 'temp_hydraulics', 'pressure_pcf_1', 'pressure_pcf_2', 'pressure_pcf_3', 
+    'cisnienie', 'przeciek', 'temperaturatestu', 'temp_pieca'
+
+    #nasz parametr klasy:
+    'our_final_status'
+
     columns = ['nr_dgm', 'rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
                'temp_workpiece', 'temp_hydraulics', 'pressure_pcf_1', 'pressure_pcf_2', 
                'pressure_pcf_3', 'cisnienie', 'przeciek', 'temperaturatestu', 'temp_pieca']
