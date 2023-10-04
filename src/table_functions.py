@@ -182,9 +182,6 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     nok = train[train['our_final_status'] == 2].sample(n=nok_samples, replace=True)
 
     # undersampling
-    max = train.groupby('our_final_status').max()
-    if ok_samples > max:
-        ok_samples = max
     ok = train[train['our_final_status'] == 1].sample(n=ok_samples)
 
     train = pd.concat([ok, nok])
