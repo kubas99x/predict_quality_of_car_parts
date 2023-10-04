@@ -152,7 +152,7 @@ def read_csv(file_name):
     df = pd.read_csv(os.path.join(parent_dir, 'not_in_repo', file_name))
     return df
 
-def split_data(final_table):
+def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=300000):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
@@ -173,16 +173,19 @@ def split_data(final_table):
 
     target = final_table.pop('our_final_status')
 
-    x_train, x_test, y_train, y_test = train_test_split(final_table, target, train_size=0.80, random_state=42, stratify=target)
+    x_train, x_test, y_train, y_test = train_test_split(final_table, target, train_size=train_set_size, random_state=42, stratify=target)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
 
     train = pd.concat([x_train, y_train], axis=1)
 
     # oversampling
-    nok = train[train['our_final_status'] == 2].sample(n=270000, replace=True)
+    nok = train[train['our_final_status'] == 2].sample(n=nok_samples, replace=True)
 
     # undersampling
-    ok = train[train['our_final_status'] == 1].sample(n=300000)
+    max = train.groupby('our_final_status').max()
+    if ok_samples > max:
+        ok_samples = max
+    ok = train[train['our_final_status'] == 1].sample(n=ok_samples)
 
     train = pd.concat([ok, nok])
 
