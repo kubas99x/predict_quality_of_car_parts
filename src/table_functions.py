@@ -1,5 +1,6 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 import pandas as pd
 import os
 
@@ -152,6 +153,12 @@ def read_csv(file_name):
     df = pd.read_csv(os.path.join(parent_dir, 'not_in_repo', file_name))
     return df
 
+def distinct_machine(final_table):
+    final_table_9 = final_table[final_table['nr_dgm'] == 9]
+    final_table_10 = final_table[final_table['nr_dgm'] == 10]
+
+    return final_table_9, final_table_10
+
 def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=300000):
     
     # do modelowania:
@@ -185,6 +192,7 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     ok = train[train['our_final_status'] == 1].sample(n=ok_samples)
 
     train = pd.concat([ok, nok])
+    train = shuffle(train)
 
     y_train = train.pop('our_final_status')
     x_train = train
