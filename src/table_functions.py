@@ -122,8 +122,9 @@ def standarize_data(final_table):
 
     return final_table
 
-def normalize_data(final_table):
+def normalize_data(whole_df):
 
+    final_table = whole_df.copy()
     categorical_columns = []
     for name in ['assigment', 'working_mode']:
         for x in range(1,29):
@@ -132,7 +133,8 @@ def normalize_data(final_table):
     categorical_data = final_table[categorical_columns].astype('category')
     categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
 
-    neutral_columns = ['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
+    #['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
+    neutral_columns = ['our_final_status']
     neutral_data = final_table[neutral_columns].astype('category')
     categorical_columns.extend(neutral_columns)
     final_table.drop(columns=categorical_columns, inplace=True)
@@ -159,6 +161,15 @@ def distinct_machine(final_table):
 
     return final_table_9, final_table_10
 
+def drop_columns_not_used_in_ml(final_table):
+    whole_df = final_table.copy()
+    columns = ['nr_dgm', 'rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
+            'temp_workpiece', 'temp_hydraulics', 'pressure_pcf_1', 'pressure_pcf_2', 
+            'pressure_pcf_3', 'cisnienie', 'przeciek', 'temperaturatestu', 'temp_pieca']
+    whole_df.drop(columns=columns, inplace=True)
+
+    return whole_df
+
 def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=300000):
     
     # do modelowania:
@@ -172,15 +183,11 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
 
     #nasz parametr klasy:
     'our_final_status'
+    whole_df = final_table.copy()
 
-    columns = ['nr_dgm', 'rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
-               'temp_workpiece', 'temp_hydraulics', 'pressure_pcf_1', 'pressure_pcf_2', 
-               'pressure_pcf_3', 'cisnienie', 'przeciek', 'temperaturatestu', 'temp_pieca']
-    final_table.drop(columns=columns, inplace=True)
+    target = whole_df.pop('our_final_status')
 
-    target = final_table.pop('our_final_status')
-
-    x_train, x_test, y_train, y_test = train_test_split(final_table, target, train_size=train_set_size, random_state=42, stratify=target)
+    x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
 
     train = pd.concat([x_train, y_train], axis=1)
