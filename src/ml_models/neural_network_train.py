@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 
 
-def compile_fit_evaluate_model(model_, x_train, y_train, x_valid, y_valid, x_test, y_test, epochs_=10, batch_size_=64, optimizer_='adam', metrics_='accuracy'):
+def compile_fit_evaluate_model(model_, x_train, x_valid, x_test, y_train, y_valid, y_test, epochs_=10, batch_size_=64, optimizer_='adam', metrics_='accuracy'):
     # custom_optimizer = Adam(learning_rate=0.001)
     # Adam zajebiscie pasuje do dużych modeli a binary_crossentropy do binarnej klasyfikacji, 'adam'
     model_.compile(loss='binary_crossentropy', optimizer=optimizer_, metrics=[f'{metrics_}']) 

@@ -122,8 +122,7 @@ def standarize_data(final_table):
 
     return final_table
 
-def normalize_data(whole_df):
-
+def categorize_data(whole_df):
     final_table = whole_df.copy()
     categorical_columns = []
     for name in ['assigment', 'working_mode']:
@@ -132,15 +131,36 @@ def normalize_data(whole_df):
 
     categorical_data = final_table[categorical_columns].astype('category')
     categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
+ 
+    final_table['our_final_status'] = final_table['our_final_status'].astype(int) - 1
+    final_table['our_final_status'] = final_table['our_final_status'].astype('category')
+    categorical_columns.append('our_final_status')
+    
+    final_table = pd.concat([final_table, categorical_data], axis=1)
 
-    #['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
-    neutral_columns = ['our_final_status']
-    neutral_data = final_table[neutral_columns].astype('category')
-    categorical_columns.extend(neutral_columns)
-    final_table.drop(columns=categorical_columns, inplace=True)
+    return final_table, categorical_columns
+
+def normalize_data(whole_df, categorical_columns_):
+
+    final_table = whole_df.copy()
+    
+    # categorical_columns = []
+    # for name in ['assigment', 'working_mode']:
+    #     for x in range(1,29):
+    #         categorical_columns.append(f'{name}_{x}')
+
+    # categorical_data = final_table[categorical_columns].astype('category')
+    # categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
+
+    # #['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
+    # neutral_columns = ['our_final_status']
+    # neutral_data = final_table[neutral_columns].astype('category')
+
+    categorical_data = final_table[categorical_columns_]
+    final_table.drop(columns=categorical_columns_, inplace=True)
 
     final_table[final_table.columns] = StandardScaler().fit_transform(final_table[final_table.columns])
-    final_table = pd.concat([final_table, categorical_data, neutral_data], axis=1)
+    final_table = pd.concat([final_table, categorical_data], axis=1)
 
     return final_table
 
@@ -204,7 +224,8 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     y_train = train.pop('our_final_status')
     x_train = train
 
-    return x_train, x_valid, x_test, y_train, y_valid, y_test
+    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test}
+    # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
 def return_x_y_with_specific_status(x_data, y_data, status = 2):
 
@@ -213,3 +234,11 @@ def return_x_y_with_specific_status(x_data, y_data, status = 2):
     y_test_one_status = test_data.pop('our_final_status')
     
     return test_data, y_test_one_status
+
+def return_first_x_rows(x_train_, x_valid_, x_test_, number_of_rows):
+
+    x_train_ = x_train_.iloc[:, :number_of_rows].copy()
+    x_test_ = x_test_.iloc[:, :number_of_rows].copy()
+    x_valid_ = x_valid_.iloc[:, :number_of_rows].copy()
+
+    return x_train_, x_valid_, x_test_
