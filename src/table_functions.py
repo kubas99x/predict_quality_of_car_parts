@@ -156,13 +156,16 @@ def normalize_data(whole_df, categorical_columns_):
     # neutral_columns = ['our_final_status']
     # neutral_data = final_table[neutral_columns].astype('category')
 
-    categorical_data = final_table[categorical_columns_]
+    #categorical_data = final_table[categorical_columns_]
     final_table.drop(columns=categorical_columns_, inplace=True)
 
-    final_table[final_table.columns] = StandardScaler().fit_transform(final_table[final_table.columns])
-    final_table = pd.concat([final_table, categorical_data], axis=1)
+    ml_data = split_data(final_table)
+    
+    scaler = StandardScaler()
+    ml_data['x_train'][ml_data['x_train'].columns] = scaler.fit_transform(ml_data['x_train'][ml_data['x_train'].columns])
+    ml_data['x_test'][ml_data['x_test'].columns] = scaler.transform(ml_data['x_test'][ml_data['x_test'].columns])
 
-    return final_table
+    return ml_data
 
 def save_df_to_csv(whole_df, file_name):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -213,10 +216,10 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     train = pd.concat([x_train, y_train], axis=1)
 
     # oversampling
-    nok = train[train['our_final_status'] == 2].sample(n=nok_samples, replace=True)
+    nok = train[train['our_final_status'] == 1].sample(n=nok_samples, replace=True)
 
     # undersampling
-    ok = train[train['our_final_status'] == 1].sample(n=ok_samples)
+    ok = train[train['our_final_status'] == 0].sample(n=ok_samples)
 
     train = pd.concat([ok, nok])
     train = shuffle(train)
