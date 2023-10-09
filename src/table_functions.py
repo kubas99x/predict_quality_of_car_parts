@@ -213,10 +213,10 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     train = pd.concat([x_train, y_train], axis=1)
 
     # oversampling
-    nok = train[train['our_final_status'] == 2].sample(n=nok_samples, replace=True)
+    nok = train[train['our_final_status'] == 1].sample(n=nok_samples, replace=True)
 
     # undersampling
-    ok = train[train['our_final_status'] == 1].sample(n=ok_samples)
+    ok = train[train['our_final_status'] == 0].sample(n=ok_samples)
 
     train = pd.concat([ok, nok])
     train = shuffle(train)
@@ -227,7 +227,7 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test}
     # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
-def return_x_y_with_specific_status(x_data, y_data, status = 2):
+def return_x_y_with_specific_status(x_data, y_data, status = 1):
 
     test_data = pd.concat([x_data, y_data], axis = 1)
     test_data = test_data[test_data['our_final_status']== status]
