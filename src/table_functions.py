@@ -140,7 +140,7 @@ def categorize_data(whole_df):
 
     return final_table, categorical_columns
 
-def normalize_data(whole_df, categorical_columns_):
+def normalize_data(whole_df, categorical_columns_, scaler=None):
 
     final_table = whole_df.copy()
     
@@ -155,17 +155,19 @@ def normalize_data(whole_df, categorical_columns_):
     # #['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
     # neutral_columns = ['our_final_status']
     # neutral_data = final_table[neutral_columns].astype('category')
-
-    #categorical_data = final_table[categorical_columns_]
+    categorical_data = final_table[categorical_columns_]
     final_table.drop(columns=categorical_columns_, inplace=True)
 
-    ml_data = split_data(final_table)
-    
-    scaler = StandardScaler()
-    ml_data['x_train'][ml_data['x_train'].columns] = scaler.fit_transform(ml_data['x_train'][ml_data['x_train'].columns])
-    ml_data['x_test'][ml_data['x_test'].columns] = scaler.transform(ml_data['x_test'][ml_data['x_test'].columns])
+    if not scaler:
+        scaler = StandardScaler()
+        final_table[final_table.columns] = scaler.fit_transform(final_table[final_table.columns])
+        final_table = pd.concat([final_table, categorical_data], axis=1)
+        return final_table, scaler
 
-    return ml_data
+    final_table[final_table.columns] = scaler.transform(final_table[final_table.columns])
+    final_table = pd.concat([final_table, categorical_data], axis=1)
+
+    return final_table
 
 def save_df_to_csv(whole_df, file_name):
     current_dir = os.path.dirname(os.path.abspath(__file__))
