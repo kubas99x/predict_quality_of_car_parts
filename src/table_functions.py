@@ -140,7 +140,7 @@ def categorize_data(whole_df):
 
     return final_table, categorical_columns
 
-def normalize_data(whole_df, categorical_columns_):
+def normalize_data(whole_df, categorical_columns_, scaler=None):
 
     final_table = whole_df.copy()
     
@@ -155,11 +155,16 @@ def normalize_data(whole_df, categorical_columns_):
     # #['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
     # neutral_columns = ['our_final_status']
     # neutral_data = final_table[neutral_columns].astype('category')
-
     categorical_data = final_table[categorical_columns_]
     final_table.drop(columns=categorical_columns_, inplace=True)
 
-    final_table[final_table.columns] = StandardScaler().fit_transform(final_table[final_table.columns])
+    if not scaler:
+        scaler = StandardScaler()
+        final_table[final_table.columns] = scaler.fit_transform(final_table[final_table.columns])
+        final_table = pd.concat([final_table, categorical_data], axis=1)
+        return final_table, scaler
+
+    final_table[final_table.columns] = scaler.transform(final_table[final_table.columns])
     final_table = pd.concat([final_table, categorical_data], axis=1)
 
     return final_table
@@ -213,10 +218,10 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     train = pd.concat([x_train, y_train], axis=1)
 
     # oversampling
-    nok = train[train['our_final_status'] == 2].sample(n=nok_samples, replace=True)
+    nok = train[train['our_final_status'] == 1].sample(n=nok_samples, replace=True)
 
     # undersampling
-    ok = train[train['our_final_status'] == 1].sample(n=ok_samples)
+    ok = train[train['our_final_status'] == 0].sample(n=ok_samples)
 
     train = pd.concat([ok, nok])
     train = shuffle(train)
