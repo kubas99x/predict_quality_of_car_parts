@@ -232,7 +232,7 @@ def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=
     return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test}
     # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
-def return_x_y_with_specific_status(x_data, y_data, status = 2):
+def return_x_y_with_specific_status(x_data, y_data, status = 1):
 
     test_data = pd.concat([x_data, y_data], axis = 1)
     test_data = test_data[test_data['our_final_status']== status]
