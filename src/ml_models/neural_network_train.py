@@ -4,10 +4,16 @@ from mlflow import log_params, log_metrics, start_run
 import mlflow
 import mlflow.keras
 from sklearn.metrics import recall_score
+import os 
 
 def compile_fit_evaluate_model(x_train, x_valid, x_test, y_train, y_valid, y_test, epochs_=10,
                                batch_size_=64, optimizer_='adam',metrics_='accuracy', comment='no comment', run_name_='standard_run'):
     
+
+    artifact_directory = "neural_network"
+    mlflow.set_experiment(artifact_directory)
+    mlflow.tensorflow.autolog()
+
     with start_run(run_name=run_name_):
         model = Sequential([
         layers.Dense(64, activation='relu', input_shape=(x_train.shape[1],)),
@@ -33,8 +39,8 @@ def compile_fit_evaluate_model(x_train, x_valid, x_test, y_train, y_valid, y_tes
 
         
         # Log parameters and metrics to MLflow, no spaces allowed
-        log_params({'epochs': epochs_, 'batch_size': batch_size_, 'optimizer': optimizer_, 'metrics': metrics_, 'comment': comment, 'used_columns_shape':x_train.shape})
-        log_metrics({'loss': loss, 'accuracy': accuracy, 'recall_nok':recall_class_1, 'recall_ok':recall_class_0})
+        log_params({'comment': comment, 'used_columns_shape':x_train.shape})
+        log_metrics({'recall_nok':recall_class_1, 'recall_ok':recall_class_0})
 
         mlflow.keras.log_model(model, "model_saved")
 
