@@ -131,16 +131,17 @@ def categorize_data(whole_df):
 
     categorical_data = final_table[categorical_columns].astype('category')
     categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
- 
+    
+    
     final_table['our_final_status'] = final_table['our_final_status'].astype(int) - 1
     final_table['our_final_status'] = final_table['our_final_status'].astype('category')
-    categorical_columns.append('our_final_status')
+    final_table.drop(columns=categorical_columns, inplace=True)
     
     final_table = pd.concat([final_table, categorical_data], axis=1)
 
-    return final_table, categorical_columns
+    return final_table
 
-def normalize_data(whole_df, categorical_columns_, scaler=None):
+def normalize_data(whole_df, scaler=None):
 
     final_table = whole_df.copy()
     
@@ -155,6 +156,7 @@ def normalize_data(whole_df, categorical_columns_, scaler=None):
     # #['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
     # neutral_columns = ['our_final_status']
     # neutral_data = final_table[neutral_columns].astype('category')
+    categorical_columns_ = list(final_table.iloc[:, 130:].columns)
     categorical_data = final_table[categorical_columns_]
     final_table.drop(columns=categorical_columns_, inplace=True)
 
