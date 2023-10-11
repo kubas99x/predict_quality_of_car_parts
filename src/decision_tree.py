@@ -10,14 +10,17 @@ def create_decision_tree_model(x_train, y_train):
 
     return clf
 
-def print_decision_tree_stats(clf, x_test, y_test):
+def print_stats(clf, x_test, y_test):
     y_pred = clf.predict(x_test)
 
+    # tworzenie macierzy konfuzji
     cm = confusion_matrix(y_test, y_pred)
-    print(cm)
+    # oblicznie dokładności
+    acc = accuracy_score(y_test, y_pred)
     
+    # tworzenie wizualizacji macierzy konfuzji
     cm = cm[::-1]
-    cm = pd.DataFrame(cm, columns=['pred_0, pred_1'], index=['true_1, true_0'])
+    cm = pd.DataFrame(data=cm, columns=['pred_0', 'pred_1'], index=['true_1', 'true_0'])
 
     fig = ff.create_annotated_heatmap(
         z=cm.values, 
@@ -30,11 +33,14 @@ def print_decision_tree_stats(clf, x_test, y_test):
     fig.update_layout(
         width=500,
         height=500,
-        title='Confusion Matrix',
+        title=f'Confusion Matrix: accuracy = {acc * 100}%',
         font_size=16)
-    
+
     fig.show()
 
+    # wyświetlanie raportu modelu
     print(classification_report(y_test, y_pred))
+
+
 
 
