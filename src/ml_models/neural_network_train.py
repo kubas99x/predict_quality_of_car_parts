@@ -42,7 +42,7 @@ def compile_fit_evaluate_model(x_train, x_valid, x_test, y_train, y_valid, y_tes
         log_params({'comment': comment, 'used_columns_shape':x_train.shape})
         log_metrics({'recall_nok':recall_class_1, 'recall_ok':recall_class_0})
 
-        mlflow.keras.log_model(model, "model_saved")
+        #mlflow.keras.log_model(model, "model_saved")
 
 
 # how to load model:
