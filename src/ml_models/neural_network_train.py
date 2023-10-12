@@ -3,7 +3,7 @@ from tensorflow.keras import layers
 from mlflow import log_params, log_metrics, start_run
 import mlflow
 import mlflow.keras
-from sklearn.metrics import recall_score
+from sklearn.metrics import accuracy_score, recall_score
 import os 
 
 def compile_fit_evaluate_model(x_train, x_valid, x_test, y_train, y_valid, y_test, epochs_=10,
@@ -36,11 +36,11 @@ def compile_fit_evaluate_model(x_train, x_valid, x_test, y_train, y_valid, y_tes
         predicted_classes = (predictions > 0.5).astype(int)  
         recall_class_1 = recall_score(y_test, predicted_classes, pos_label=1)
         recall_class_0 = recall_score(y_test, predicted_classes, pos_label=0)
-
+        accuracy = accuracy_score(y_test, predicted_classes)
         
         # Log parameters and metrics to MLflow, no spaces allowed
         log_params({'comment': comment, 'used_columns_shape':x_train.shape})
-        log_metrics({'recall_nok':recall_class_1, 'recall_ok':recall_class_0})
+        log_metrics({'recall_nok':recall_class_1, 'recall_ok':recall_class_0, 'acc_test':accuracy, 'loss_test':loss})
 
         #mlflow.keras.log_model(model, "model_saved")
 
