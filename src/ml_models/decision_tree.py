@@ -4,11 +4,10 @@ import graphviz
 import plotly.figure_factory as ff
 from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score
 from mlflow import log_params, log_metrics, start_run
 import mlflow
 import mlflow.keras
-from sklearn.metrics import recall_score
 
 
 def decision_tree_model(x_train, x_valid, x_test, y_train, y_valid, y_test, max_depth_=10, run_name_='standard_run', comment='no comment'):
@@ -26,7 +25,7 @@ def decision_tree_model(x_train, x_valid, x_test, y_train, y_valid, y_test, max_
         predicted_classes = (predictions > 0.5).astype(int)  
         recall_nok = recall_score(y_test, predicted_classes, pos_label=1)
         recall_ok = recall_score(y_test, predicted_classes, pos_label=0)
-        accuracy = accuracy_score(y_test, predictions)
+        accuracy = accuracy_score(y_test, predicted_classes)
 
         log_params({'comment': comment, 'used_columns_shape':x_train.shape})
         log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
