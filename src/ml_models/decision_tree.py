@@ -1,9 +1,8 @@
 import pandas as pd
 import numpy as np
-import graphviz
+import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
-from sklearn import tree
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, recall_score
 from mlflow import log_params, log_metrics, start_run
 import mlflow
@@ -30,16 +29,17 @@ def decision_tree_model(x_train, x_valid, x_test, y_train, y_valid, y_test, max_
         log_params({'comment': comment, 'used_columns_shape':x_train.shape})
         log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
 
-        # dot_data = tree.export_graphviz(clf, out_file=None, 
-        #                         feature_names=x_train.columns,  
-        #                         class_names=['ok','nok'])
+        fig = plt.figure(figsize=(20 + (max_depth_/100) * 120, 20))
 
-        # # Visualize the decision tree using graphviz
-        # graph = graphviz.Source(dot_data)
-        # graph.render("decision_tree_graph", format="png")  # Save as PNG
-        # mlflow.log_artifact("decision_tree_graph.png")
+        plot_tree(clf,
+              feature_names=list(x_train.columns),
+              class_names=['ok', 'nok'],
+              filled=True,
+              rounded=True)
+        plt.savefig('decision_tree_graph.png')
+        mlflow.log_artifact("decision_tree_graph.png")
 
-    return clf
+    return clf, max_depth_
 
 def print_stats(clf, x_test, y_test):
     y_pred = clf.predict(x_test)
