@@ -21,8 +21,8 @@ def decision_tree_model(x_train, x_valid, x_test, y_train, y_valid, y_test, max_
         clf = DecisionTreeClassifier(random_state=0, max_depth=max_depth_)
         
         grid_params = {
-            'criterion': ['gini', 'entorpy'],
-            'max_depth': np.arange(10,50),
+            'criterion': ['gini', 'entorpy', 'log_loss'],
+            'max_depth': np.arange(10,51,10),
             'min_samples_leaf': [1,2,3,4,5,6,7,8,9,10,15,20]
         }
 
