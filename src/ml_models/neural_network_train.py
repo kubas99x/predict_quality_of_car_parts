@@ -5,14 +5,36 @@ import mlflow
 import mlflow.keras
 from sklearn.metrics import accuracy_score, recall_score
 import os 
+from sklearn.decomposition import PCA
+import numpy as np
+import umap
 
-def compile_fit_evaluate_model(x_train, x_valid, x_test, y_train, y_valid, y_test, epochs_=10,
-                               batch_size_=64, optimizer_='adam',metrics_='accuracy', comment='no comment', run_name_='standard_run'):
+
+def compile_fit_evaluate_model(x_train_, x_valid_, x_test_, y_train, y_valid, y_test, epochs_=10,
+                               batch_size_=64, optimizer_='adam',metrics_='accuracy', comment='no comment', run_name_='standard_run',
+                               n_components = None, n_components_umap = None, umap_min_dist = 0.1 ):
     
-
+    # umap_min_dist=0.1
+    
+    x_train = np.copy(x_train_)
+    x_valid = np.copy(x_valid_)
+    x_test = np.copy(x_test_)
+    
     artifact_directory = "neural_network"
     mlflow.set_experiment(artifact_directory)
     mlflow.tensorflow.autolog()
+
+    if n_components is not None:
+        pca = PCA(n_components=n_components)
+        x_train = pca.fit_transform(x_train)
+        x_valid = pca.transform(x_valid)
+        x_test = pca.transform(x_test)
+    
+    if n_components_umap is not None:
+        umap_model = umap.UMAP(n_components=n_components_umap, min_dist=umap_min_dist)
+        x_train = umap_model.fit_transform(x_train)
+        x_valid = umap_model.transform(x_valid)
+        x_test = umap_model.transform(x_test)
 
     with start_run(run_name=run_name_):
         model = Sequential([
@@ -20,7 +42,12 @@ def compile_fit_evaluate_model(x_train, x_valid, x_test, y_train, y_valid, y_tes
         layers.Dense(64, activation='relu'),
         layers.Dense(1, activation='sigmoid')   # Probability score between 0 and 1
         ])
-        
+
+        # model = Sequential([
+        # layers.Dense(8, activation='relu', input_shape=(x_train.shape[1],)),
+        # layers.Dense(1, activation='sigmoid')
+        # ])
+
         # custom_optimizer = Adam(learning_rate=0.001)
         # Adam zajebiscie pasuje do dużych modeli a binary_crossentropy do binarnej klasyfikacji, 'adam'
         model.compile(loss='binary_crossentropy', optimizer=optimizer_, metrics=[f'{metrics_}']) 
