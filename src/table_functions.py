@@ -144,18 +144,6 @@ def categorize_data(whole_df):
 def normalize_data(whole_df, scaler=None):
 
     final_table = whole_df.copy()
-    
-    # categorical_columns = []
-    # for name in ['assigment', 'working_mode']:
-    #     for x in range(1,29):
-    #         categorical_columns.append(f'{name}_{x}')
-
-    # categorical_data = final_table[categorical_columns].astype('category')
-    # categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
-
-    # #['rodzaj_kontroli', 'kod_pola', 'rodzaj_uszkodzenia', 'our_final_status', 'nr_dgm']
-    # neutral_columns = ['our_final_status']
-    # neutral_data = final_table[neutral_columns].astype('category')
     categorical_columns_ = list(final_table.iloc[:, 130:].columns)
     categorical_data = final_table[categorical_columns_]
     final_table.drop(columns=categorical_columns_, inplace=True)
