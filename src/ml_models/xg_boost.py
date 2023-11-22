@@ -16,6 +16,7 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
     with start_run(run_name=run_name_):
         
         train = xgb.DMatrix(x_train, label=y_train)
+        valid = xgb.DMatrix(x_valid, y_valid)
         test = xgb.DMatrix(x_test, y_test)
 
         cv = KFold(n_splits=5, shuffle=True, random_state=1011).split(X=x_train, y=y_train)
@@ -47,21 +48,21 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
 
         grid_search.fit(x_train, y_train, **eval_parameters)
 
-        #model = xgb.train(
-        #    params = grid_params,
-        #    dtrain=train,
-        #    num_boost_round = 600,
-        #    evals=[(test, 'eval'), (train, 'train')],
-        #    verbose_eval=100
-        #)
+        model = xgb.train(
+            params = grid_search.best_params_,
+            dtrain=train,
+            num_boost_round = 600,
+            evals=[(valid, 'eval'), (train, 'train')],
+            verbose_eval=100
+        )
 
-        #predictions = model.predict(test)
-        #predicted_classes = (predictions > 0.5).astype(int)  
-        #recall_nok = recall_score(y_test, predicted_classes, pos_label=1)
-        #recall_ok = recall_score(y_test, predicted_classes, pos_label=0)
-        #accuracy = accuracy_score(y_test, predicted_classes)
+        predictions = model.predict(test)
+        predicted_classes = (predictions > 0.5).astype(int)  
+        recall_nok = recall_score(y_test, predicted_classes, pos_label=1)
+        recall_ok = recall_score(y_test, predicted_classes, pos_label=0)
+        accuracy = accuracy_score(y_test, predicted_classes)
 
-        #log_params({'comment': comment, 'used_columns_shape':x_train.shape})
-        #log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
+        log_params({'comment': comment, 'used_columns_shape':x_train.shape})
+        log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
 
     return grid_search.best_estimator_
