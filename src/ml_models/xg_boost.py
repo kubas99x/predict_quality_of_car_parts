@@ -65,4 +65,4 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
         log_params({'comment': comment, 'used_columns_shape':x_train.shape})
         log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
 
-    return grid_search.best_estimator_
+    return model
