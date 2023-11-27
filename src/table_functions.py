@@ -1,6 +1,7 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import os
 
@@ -144,7 +145,7 @@ def categorize_data(whole_df):
 def normalize_data(whole_df, scaler=None):
 
     final_table = whole_df.copy()
-    categorical_columns_ = list(final_table.iloc[:, 130:].columns)
+    categorical_columns_ = [value for value in final_table if value.startswith('assigment') or value.startswith('working')]
     categorical_data = final_table[categorical_columns_]
     final_table.drop(columns=categorical_columns_, inplace=True)
 
@@ -158,6 +159,43 @@ def normalize_data(whole_df, scaler=None):
     final_table = pd.concat([final_table, categorical_data], axis=1)
 
     return final_table
+
+def normalize_0_1(whole_df, scaler=None):
+    whole_table = whole_df.copy()
+    categorical_columns_ = [value for value in whole_table if value.startswith('assigment') or value.startswith('working')]
+    categorical_data = whole_table[categorical_columns_]
+    whole_table.drop(columns=categorical_columns_, inplace=True)
+
+    if not scaler:
+        scaler = MinMaxScaler()
+        whole_table[whole_table.columns] = scaler.fit_transform(whole_table[whole_table.columns])
+        whole_table = pd.concat([whole_table, categorical_data], axis=1)
+        return whole_table, scaler
+
+    whole_table[whole_table.columns] = scaler.transform(whole_table[whole_table.columns])
+    whole_table = pd.concat([whole_table, categorical_data], axis=1)
+
+    return whole_table
+
+def normalize_and_save_to_csv(ml_data, file_name_, normalize_type = '0_1'):
+
+    if normalize_type == '0_1':
+        ml_data['x_train'], scaler = normalize_0_1(ml_data['x_train'])
+        ml_data['x_valid'] = normalize_0_1(ml_data['x_valid'], scaler)
+        ml_data['x_test'] = normalize_0_1(ml_data['x_test'], scaler)
+    else:
+        ml_data['x_train'], scaler = normalize_data(ml_data['x_train'])
+        ml_data['x_valid'] = normalize_data(ml_data['x_valid'], scaler)
+        ml_data['x_test'] = normalize_data(ml_data['x_test'], scaler)
+
+    save_df_to_csv(ml_data['x_train'], f'x_train_{file_name_}.csv')
+    save_df_to_csv(ml_data['y_train'], f'y_train_{file_name_}.csv')
+    save_df_to_csv(ml_data['x_valid'], f'x_valid_{file_name_}.csv')
+    save_df_to_csv(ml_data['y_valid'], f'y_valid_{file_name_}.csv')
+    save_df_to_csv(ml_data['x_test'], f'x_test_{file_name_}.csv')
+    save_df_to_csv(ml_data['y_test'], f'y_test_{file_name_}.csv')
+
+    return ml_data
 
 def save_df_to_csv(whole_df, file_name):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -184,6 +222,22 @@ def drop_columns_not_used_in_ml(final_table):
     whole_df.drop(columns=columns, inplace=True)
 
     return whole_df
+
+def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.85):
+    whole_df = final_table.copy()
+    correlation_matrix = whole_df.corr()
+    high_corr_features = set()
+    for i in range(len(correlation_matrix.columns)):
+        for j in range(i):
+            if abs(correlation_matrix.iloc[i, j]) > corrTreshold:
+                colname = correlation_matrix.columns[i]
+                high_corr_features.add(colname)
+
+    final_table_droped = whole_df.drop(columns = high_corr_features)
+
+    return final_table_droped
+
+
 
 def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=300000):
     

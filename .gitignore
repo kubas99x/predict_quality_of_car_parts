@@ -2,3 +2,5 @@ not_in_repo/
 **/__pycache__/
 **/neural_models/
 **/mlruns/
+**/tmpNotebook.ipynb/
+
