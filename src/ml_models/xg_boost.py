@@ -51,7 +51,7 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
         model = xgb.train(
             params = grid_search.best_params_,
             dtrain=train,
-            num_boost_round = 600,
+            num_boost_round = grid_search.best_estimator_['n_estimators'],
             evals=[(valid, 'eval'), (train, 'train')],
             verbose_eval=100
         )
