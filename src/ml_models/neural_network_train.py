@@ -9,6 +9,7 @@ import os
 import numpy as np
 import umap
 from ml_models.neural_network_models import return_model
+from ml_functions import *
 
 
 def compile_fit_evaluate_model(x_train_, x_valid_, x_test_, y_train, y_valid, y_test, epochs_=10,
@@ -30,8 +31,9 @@ def compile_fit_evaluate_model(x_train_, x_valid_, x_test_, y_train, y_valid, y_
         # custom_optimizer = Adam(learning_rate=0.001)
         # Adam zajebiscie pasuje do dużych modeli a binary_crossentropy do binarnej klasyfikacji, 'adam'
         model.compile(loss='binary_crossentropy', optimizer=optimizer_, metrics=[f'{metrics_}']) 
-        #es = EarlyStopping(monitor='val_loss', mode='auto', verbose=1, patience=5)
+        #callbackStopping = EarlyStopping(monitor='loss', mode='auto', verbose=1, patience=5)
         #epoch - ilosc przejsc po calym datasecie, batch_size - ile wierszy jest branych w jednej iteracji
+        #, callbacks = [callbackStopping]
         model.fit(x_train, y_train, epochs=epochs_, batch_size=batch_size_, validation_data=(x_valid, y_valid)) 
 
         loss, accuracy = model.evaluate(x_test, y_test)
@@ -47,6 +49,9 @@ def compile_fit_evaluate_model(x_train_, x_valid_, x_test_, y_train, y_valid, y_
         # Log parameters and metrics to MLflow, no spaces allowed
         log_params({'comment': comment, 'used_columns_shape':x_train.shape})
         log_metrics({'recall_nok':recall_class_1, 'recall_ok':recall_class_0, 'acc_test':accuracy, 'loss_test':loss})
+
+        fig = distribution_of_probability_plot(predictions, y_test)
+        mlflow.log_figure(fig, 'model_probability.png')
 
 # how to load model:
 # loaded_model = mlflow.keras.load_model(r'C:\Users\dlxpmx8\Desktop\Projekt_AI\meb_process_data_analysis\src\mlruns\0\25857868653e497d806538cc98c80316\artifacts\model_test')
