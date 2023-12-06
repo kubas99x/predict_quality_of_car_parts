@@ -177,35 +177,30 @@ def normalize_0_1(whole_df, scaler=None):
 
     return whole_table
 
-def normalize_and_save_to_csv(ml_data, file_name_, normalize_type = '0_1'):
-
+def normalize_and_save_to_csv(ml_data, file_name_, normalize_type = 'None'):
+    ml_data_ = ml_data.copy()
+    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
     if normalize_type == '0_1':
-        ml_data['x_train'], scaler = normalize_0_1(ml_data['x_train'])
-        ml_data['x_valid'] = normalize_0_1(ml_data['x_valid'], scaler)
-        ml_data['x_test'] = normalize_0_1(ml_data['x_test'], scaler)
-    else:
-        ml_data['x_train'], scaler = normalize_data(ml_data['x_train'])
-        ml_data['x_valid'] = normalize_data(ml_data['x_valid'], scaler)
-        ml_data['x_test'] = normalize_data(ml_data['x_test'], scaler)
+        ml_data_['x_train'], scaler = normalize_0_1(ml_data_['x_train'])
+        ml_data_['x_valid'] = normalize_0_1(ml_data_['x_valid'], scaler)
+        ml_data_['x_test'] = normalize_0_1(ml_data_['x_test'], scaler)
+    elif normalize_type == 'standard':
+        ml_data_['x_train'], scaler = normalize_data(ml_data_['x_train'])
+        ml_data_['x_valid'] = normalize_data(ml_data_['x_valid'], scaler)
+        ml_data_['x_test'] = normalize_data(ml_data_['x_test'], scaler)
 
-    save_df_to_csv(ml_data['x_train'], f'x_train_{file_name_}.csv')
-    save_df_to_csv(ml_data['y_train'], f'y_train_{file_name_}.csv')
-    save_df_to_csv(ml_data['x_valid'], f'x_valid_{file_name_}.csv')
-    save_df_to_csv(ml_data['y_valid'], f'y_valid_{file_name_}.csv')
-    save_df_to_csv(ml_data['x_test'], f'x_test_{file_name_}.csv')
-    save_df_to_csv(ml_data['y_test'], f'y_test_{file_name_}.csv')
+    for key_ in data_keys:
+        save_df_to_csv(ml_data_[key_], f'{key_}_{file_name_}.csv')
 
-    return ml_data
-
-def save_df_to_csv(whole_df, file_name):
+def save_df_to_csv(dat_, file_name):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    parent_dir = os.path.dirname(current_dir)
-    whole_df.to_csv(os.path.join(parent_dir, 'not_in_repo', file_name), index= False)
+    dat_.to_csv(os.path.join(current_dir, '.data', file_name).replace("\\","/"), index= False)
 
-def read_csv(file_name):
+def load_csv(file_name):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    parent_dir = os.path.dirname(current_dir)
-    df = pd.read_csv(os.path.join(parent_dir, 'not_in_repo', file_name))
+    print('File to read:')
+    print(os.path.join(current_dir, '.data', file_name).replace("\\","/"))
+    df = pd.read_csv(os.path.join(current_dir, '.data', file_name).replace("\\","/"))
     return df
 
 def distinct_machine(final_table):
@@ -233,13 +228,20 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.85):
                 colname = correlation_matrix.columns[i]
                 high_corr_features.add(colname)
 
+    print(f'Features with correlation > {corrTreshold} : {len(high_corr_features)}')
     final_table_droped = whole_df.drop(columns = high_corr_features)
 
     return final_table_droped
 
+def read_data_for_traning(fileName):
+    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
+    ml_data_ = {key: None for key in data_keys}
+    for key in ml_data_:
+        ml_data_[key] = load_csv(f'{key}_{fileName}.csv')
+    
+    return ml_data_
 
-
-def split_data(final_table, train_set_size=0.80, nok_samples=270000, ok_samples=300000):
+def split_data(final_table, train_set_size=0.80, nok_samples=250000, ok_samples=250000):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 

@@ -3,4 +3,4 @@ not_in_repo/
 **/neural_models/
 **/mlruns/
 **/tmpNotebook.ipynb/
-
+**/*.data
