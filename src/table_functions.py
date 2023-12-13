@@ -179,15 +179,18 @@ def normalize_0_1(whole_df, scaler=None):
 
 def normalize_and_save_to_csv(ml_data, file_name_, normalize_type = 'None'):
     ml_data_ = ml_data.copy()
-    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies',
+                 'y_train', 'y_valid', 'y_test', 'y_anomalies']
     if normalize_type == '0_1':
         ml_data_['x_train'], scaler = normalize_0_1(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_0_1(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_0_1(ml_data_['x_test'], scaler)
+        ml_data_['x_anomalies'] = normalize_0_1(ml_data_['x_anomalies'], scaler)
     elif normalize_type == 'standard':
         ml_data_['x_train'], scaler = normalize_data(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_data(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_data(ml_data_['x_test'], scaler)
+        ml_data_['x_anomalies'] = normalize_data(ml_data_['x_anomalies'], scaler)
 
     for key_ in data_keys:
         save_df_to_csv(ml_data_[key_], f'{key_}_{file_name_}.csv')
@@ -234,7 +237,7 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.85):
     return final_table_droped
 
 def read_data_for_traning(fileName):
-    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies', 'y_train', 'y_valid', 'y_test', 'y_anomalies']
     ml_data_ = {key: None for key in data_keys}
     for key in ml_data_:
         ml_data_[key] = load_csv(f'{key}_{fileName}.csv')
@@ -264,19 +267,49 @@ def split_data(final_table, train_set_size=0.80):
     return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test}
     # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
-def apply_lof(x_train, y_train, n_neighbors):
+def apply_lof_for_each_class(x_train, y_train, n_neighbors):
+
+    train = pd.concat([x_train, y_train], axis=1)
+    train_ok = train[train['our_final_status'] == 0]
+    train_nok = train[train['our_final_status'] == 1]
+
+    x_train = pd.DataFrame([])
+
+    # Container for outlied data
+    x_anomalies = pd.DataFrame([])
 
     lof = LocalOutlierFactor(n_neighbors=n_neighbors)
-    x_train['is_outlier'] = lof.fit_predict(x_train)
-    print(f"Amount of records to delete: {x_train[x_train['is_outlier'] == -1]['is_outlier'].count()}")
+    for table in [train_ok, train_nok]:
+        status = table.pop('our_final_status')
+        table['is_outlier'] = lof.fit_predict(table)
+        print(f"Amount of records to remove: {table[table['is_outlier'] == -1]['is_outlier'].count()}")
+        table = pd.concat([table, status], axis=1)
+        x_anomalies = pd.concat([x_anomalies, table[table['is_outlier'] == -1]])
+        x_train = pd.concat([x_train, table[table['is_outlier'] != -1]])
 
-    x_train['our_final_status'] = y_train
-    x_train = x_train[x_train['is_outlier'] != -1]
     x_train.drop(columns=['is_outlier'], inplace=True)
     y_train = x_train.pop('our_final_status')
+    y_anomalies = x_anomalies.pop('our_final_status')
 
-    return x_train, y_train
+    return x_train, y_train, x_anomalies, y_anomalies
 
+def apply_lof_on_whole_dataset(x_train, y_train, n_neighbors):
+
+    lof = LocalOutlierFactor(n_neighbors=n_neighbors)
+
+    x_train['is_outlier'] = lof.fit_predict(x_train)
+    print(f"Amount of records to remove: {x_train[x_train['is_outlier'] == -1]['is_outlier'].count()}")
+    x_train = pd.concat([x_train, y_train], axis=1)
+
+    x_anomalies = x_train[x_train['is_outlier'] == -1]
+    print(f"{x_anomalies['our_final_status'].value_counts()}")
+    y_anomalies = x_anomalies.pop('our_final_status')
+
+    x_train = x_train[x_train['is_outlier'] != -1]
+    print(f"{x_train['our_final_status'].value_counts()}")
+    y_train = x_train.pop('our_final_status')
+
+    return x_train, y_train, x_anomalies, y_anomalies
 
 def over_under_sampling(x_train, y_train, ok_samples=250000, nok_samples=250000):
 
