@@ -25,7 +25,7 @@ def read_data_from_database():
 
 if __name__ == '__main__':
 
-    readFromDatabase = True
+    readFromDatabase = False
     final_table = None
 
     if readFromDatabase:
@@ -54,6 +54,12 @@ if __name__ == '__main__':
 
     print('Split data')
     ml_data = split_data(final_table)
+
+    print('Detecing and removing outliers')
+    ml_data['x_train'], ml_data['y_train'] = apply_lof(ml_data['x_train'], ml_data['y_train'], 30)
+
+    print('Over-and under-sampling')
+    ml_data['x_train'], ml_data['y_train'] = over_under_sampling(ml_data['x_train'], ml_data['y_train'])
 
     print("Saving training data nn")
     normalize_and_save_to_csv(ml_data, file_name_='n_n')
