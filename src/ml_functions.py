@@ -30,6 +30,7 @@ def distribution_of_probability(x_test, y_test, path_to_model = None, model_ = N
 
 def distribution_of_probability_plot(predictions, y_test,show_figure=False):
     
+    predictions = predictions.reshape(-1, 1)
     pred_class_test = {'ok': predictions[y_test == 0],
                        'nok': predictions[y_test == 1]}
 
