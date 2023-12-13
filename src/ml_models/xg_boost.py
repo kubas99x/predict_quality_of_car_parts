@@ -60,4 +60,5 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
             mlflow.log_figure(fig, 'model_probability.png')
             log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
         mlflow.end_run()
+        
     return model
