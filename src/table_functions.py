@@ -1,7 +1,7 @@
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import LocalOutlierFactor
 from sklearn.utils import shuffle
-from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import os
 
@@ -241,7 +241,7 @@ def read_data_for_traning(fileName):
     
     return ml_data_
 
-def split_data(final_table, train_set_size=0.80, nok_samples=250000, ok_samples=250000):
+def split_data(final_table, train_set_size=0.80):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
@@ -261,6 +261,25 @@ def split_data(final_table, train_set_size=0.80, nok_samples=250000, ok_samples=
     x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
 
+    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test}
+    # return x_train, x_valid, x_test, y_train, y_valid, y_test
+
+def apply_lof(x_train, y_train, n_neighbors):
+
+    lof = LocalOutlierFactor(n_neighbors=n_neighbors)
+    x_train['is_outlier'] = lof.fit_predict(x_train)
+    print(f"Amount of records to delete: {x_train[x_train['is_outlier'] == -1]['is_outlier'].count()}")
+
+    x_train['our_final_status'] = y_train
+    x_train = x_train[x_train['is_outlier'] != -1]
+    x_train.drop(columns=['is_outlier'], inplace=True)
+    y_train = x_train.pop('our_final_status')
+
+    return x_train, y_train
+
+
+def over_under_sampling(x_train, y_train, ok_samples=250000, nok_samples=250000):
+
     train = pd.concat([x_train, y_train], axis=1)
 
     # oversampling
@@ -275,8 +294,7 @@ def split_data(final_table, train_set_size=0.80, nok_samples=250000, ok_samples=
     y_train = train.pop('our_final_status')
     x_train = train
 
-    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test}
-    # return x_train, x_valid, x_test, y_train, y_valid, y_test
+    return x_train, y_train
 
 def return_x_y_with_specific_status(x_data, y_data, status = 1):
 
