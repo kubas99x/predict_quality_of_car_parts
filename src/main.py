@@ -51,18 +51,12 @@ if __name__ == '__main__':
         save_df_to_csv(final_table, 'final_table_before_normalization.csv')
         
     else:
+        print('Reading CSV file')
         final_table = load_csv('final_table_before_normalization.csv')
 
     print('Split data')
     ml_data = split_data(final_table)
 
-    print('Detecing and removing outliers')
-    if lof_on_whole_dataset:
-        ml_data['x_train'], ml_data['y_train'], ml_data['x_anomalies'], ml_data['y_anomalies'] = apply_lof_on_whole_dataset(
-                                                                                                 ml_data['x_train'], ml_data['y_train'], 30)
-    else: 
-        ml_data['x_train'], ml_data['y_train'], ml_data['x_anomalies'], ml_data['y_anomalies'] = apply_lof_for_each_class(
-                                                                                                 ml_data['x_train'], ml_data['y_train'], 30)
     print('Over-and under-sampling')
     ml_data['x_train'], ml_data['y_train'] = over_under_sampling(ml_data['x_train'], ml_data['y_train'])
 
