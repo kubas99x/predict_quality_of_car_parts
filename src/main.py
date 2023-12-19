@@ -26,6 +26,7 @@ def read_data_from_database():
 if __name__ == '__main__':
 
     readFromDatabase = False
+    lof_on_whole_dataset = True
     final_table = None
 
     if readFromDatabase:
@@ -50,23 +51,21 @@ if __name__ == '__main__':
         save_df_to_csv(final_table, 'final_table_before_normalization.csv')
         
     else:
+        print('Reading CSV file')
         final_table = load_csv('final_table_before_normalization.csv')
 
     print('Split data')
     ml_data = split_data(final_table)
 
-    print('Detecing and removing outliers')
-    ml_data['x_train'], ml_data['y_train'] = apply_lof(ml_data['x_train'], ml_data['y_train'], 30)
-
     print('Over-and under-sampling')
     ml_data['x_train'], ml_data['y_train'] = over_under_sampling(ml_data['x_train'], ml_data['y_train'])
 
     print("Saving training data nn")
-    normalize_and_save_to_csv(ml_data, file_name_='n_n')
+    normalize_and_save_to_csv(ml_data, file_name_='n_n_lwd')
 
     print("Saving training data 0_1")
-    normalize_and_save_to_csv(ml_data, file_name_='0_1', normalize_type='0_1')
+    normalize_and_save_to_csv(ml_data, file_name_='0_1_lwd', normalize_type='0_1')
 
     print("Saving training data s_s")
-    normalize_and_save_to_csv(ml_data, file_name_='s_s', normalize_type='standard')
+    normalize_and_save_to_csv(ml_data, file_name_='s_s_lwd', normalize_type='standard')
     

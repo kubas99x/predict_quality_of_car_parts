@@ -1,6 +1,7 @@
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import LocalOutlierFactor
+from imblearn.over_sampling import SMOTE
 from sklearn.utils import shuffle
 import pandas as pd
 import os
@@ -179,15 +180,18 @@ def normalize_0_1(whole_df, scaler=None):
 
 def normalize_and_save_to_csv(ml_data, file_name_, normalize_type = 'None'):
     ml_data_ = ml_data.copy()
-    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies',
+                 'y_train', 'y_valid', 'y_test', 'y_anomalies']
     if normalize_type == '0_1':
         ml_data_['x_train'], scaler = normalize_0_1(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_0_1(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_0_1(ml_data_['x_test'], scaler)
+        ml_data_['x_anomalies'] = normalize_0_1(ml_data_['x_anomalies'], scaler)
     elif normalize_type == 'standard':
         ml_data_['x_train'], scaler = normalize_data(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_data(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_data(ml_data_['x_test'], scaler)
+        ml_data_['x_anomalies'] = normalize_data(ml_data_['x_anomalies'], scaler)
 
     for key_ in data_keys:
         save_df_to_csv(ml_data_[key_], f'{key_}_{file_name_}.csv')
@@ -234,14 +238,35 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.85):
     return final_table_droped
 
 def read_data_for_traning(fileName):
-    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies', 'y_train', 'y_valid', 'y_test', 'y_anomalies']
     ml_data_ = {key: None for key in data_keys}
     for key in ml_data_:
         ml_data_[key] = load_csv(f'{key}_{fileName}.csv')
     
     return ml_data_
 
-def split_data(final_table, train_set_size=0.80):
+def apply_lof(whole_df, n):
+
+    target = whole_df.pop('our_final_status')
+
+    lof = LocalOutlierFactor(n_neighbors=n)
+    whole_df['is_outlier'] = lof.fit_predict(whole_df)
+    print(f"Amount of outliers: {whole_df[whole_df['is_outlier'] == -1]['is_outlier'].count()}")
+    print('\n')
+
+    whole_df['our_final_status'] = target
+    print(f"{whole_df['our_final_status'].value_counts()}")
+    x_anomalies = whole_df[whole_df['is_outlier'] == -1]
+    x_anomalies.drop(columns=['is_outlier'], inplace=True)
+    y_anomalies = x_anomalies.pop('our_final_status')
+
+    whole_df = whole_df[whole_df['is_outlier'] != -1]
+    whole_df.drop(columns=['is_outlier'], inplace=True)
+    target = whole_df.pop('our_final_status')
+
+    return whole_df, target, x_anomalies, y_anomalies
+
+def split_data(final_table, train_set_size=0.80, n_neighbors=20):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
@@ -256,45 +281,25 @@ def split_data(final_table, train_set_size=0.80):
     'our_final_status'
     whole_df = final_table.copy()
 
-    target = whole_df.pop('our_final_status')
+    print('Detecting and removing outliers:')
+    whole_df, target, x_anomalies, y_anomalies = apply_lof(whole_df, n=n_neighbors)
+    whole_df, target = over_under_sampling(whole_df, target)
 
     x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
 
-    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test}
+    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'x_anomalies': x_anomalies, 
+            'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test, 'y_anomalies': y_anomalies}
+            
     # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
-def apply_lof(x_train, y_train, n_neighbors):
+def over_under_sampling(data, target):
 
-    lof = LocalOutlierFactor(n_neighbors=n_neighbors)
-    x_train['is_outlier'] = lof.fit_predict(x_train)
-    print(f"Amount of records to delete: {x_train[x_train['is_outlier'] == -1]['is_outlier'].count()}")
-
-    x_train['our_final_status'] = y_train
-    x_train = x_train[x_train['is_outlier'] != -1]
-    x_train.drop(columns=['is_outlier'], inplace=True)
-    y_train = x_train.pop('our_final_status')
-
-    return x_train, y_train
-
-
-def over_under_sampling(x_train, y_train, ok_samples=250000, nok_samples=250000):
-
-    train = pd.concat([x_train, y_train], axis=1)
-
-    # oversampling
-    nok = train[train['our_final_status'] == 1].sample(n=nok_samples, replace=True)
-
-    # undersampling
-    ok = train[train['our_final_status'] == 0].sample(n=ok_samples)
-
-    train = pd.concat([ok, nok])
-    train = shuffle(train)
-
-    y_train = train.pop('our_final_status')
-    x_train = train
-
-    return x_train, y_train
+    sampler = SMOTE(sampling_strategy='all')
+    data, target = sampler.fit_resample(data, target)
+    print('Amount of classes:')
+    print(target.value_counts())
+    return data, target
 
 def return_x_y_with_specific_status(x_data, y_data, status = 1):
 
