@@ -222,7 +222,7 @@ def drop_columns_not_used_in_ml(final_table):
 
     return whole_df
 
-def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.85):
+def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.9):
     whole_df = final_table.copy()
     correlation_matrix = whole_df.corr()
     high_corr_features = set()
