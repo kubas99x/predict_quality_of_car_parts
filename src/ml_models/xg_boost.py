@@ -11,7 +11,7 @@ from ml_functions import *
 
 def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='standard_run', comment='no comment'):
 
-    mlflow.set_experiment(run_name_)
+    mlflow.set_experiment('xgboost_lwd')
     mlflow.xgboost.autolog()
 
     cv = KFold(n_splits=5, shuffle=True, random_state=1011).split(X=x_train, y=y_train)
@@ -70,4 +70,5 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
             log_params(model_params)
             log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
         mlflow.end_run()
+        
     return model

@@ -25,8 +25,7 @@ def read_data_from_database():
 
 if __name__ == '__main__':
 
-    readFromDatabase = False
-    lof_on_whole_dataset = True
+    readFromDatabase = True
     final_table = None
 
     if readFromDatabase:
