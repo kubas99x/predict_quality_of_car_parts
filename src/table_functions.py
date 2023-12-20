@@ -238,7 +238,7 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.9):
     return final_table_droped
 
 def read_data_for_traning(fileName):
-    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies', 'y_train', 'y_valid', 'y_test', 'y_anomalies']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
     ml_data_ = {key: None for key in data_keys}
     for key in ml_data_:
         ml_data_[key] = load_csv(f'{key}_{fileName}.csv')
