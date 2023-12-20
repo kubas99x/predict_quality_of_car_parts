@@ -24,7 +24,7 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
         'min_child_weight': range(2, 4),
         'gamma': [0],
         'random_state': [1011],
-        'n_estimators': range(100, 600, 100),
+        'n_estimators': [10], #range(100, 600, 100),
         'booster': ['gbtree']
     }
 
