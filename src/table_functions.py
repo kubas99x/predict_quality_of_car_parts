@@ -266,7 +266,7 @@ def apply_lof(whole_df, n):
 
     return whole_df, target, x_anomalies, y_anomalies
 
-def split_data(final_table, train_set_size=0.80, n_neighbors=20):
+def split_data(final_table, train_set_size=0.80, n_neighbors=20, ok_samples = 500000):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
@@ -283,7 +283,7 @@ def split_data(final_table, train_set_size=0.80, n_neighbors=20):
 
     print('Detecting and removing outliers:')
     whole_df, target, x_anomalies, y_anomalies = apply_lof(whole_df, n=n_neighbors)
-    whole_df, target = over_under_sampling(whole_df, target)
+    whole_df, target = over_under_sampling(whole_df, target, ok_samples)
 
     x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
@@ -293,7 +293,18 @@ def split_data(final_table, train_set_size=0.80, n_neighbors=20):
             
     # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
-def over_under_sampling(data, target):
+def over_under_sampling(data, target, ok_samples):
+
+    data_copy = data.copy()
+    target_copy = target.copy()
+
+    df = pd.concat([data_copy, target_copy], axis=1)
+
+    data_copy_ok = df[df['our_final_status'] == 0]
+    data_copy_ok = data_copy_ok.sample(n=ok_samples, axis=0)
+
+    data = pd.concat([data_copy_ok, df[df['our_final_status'] == 1]], axis=0)
+    target = data.pop('our_final_status')
 
     sampler = SMOTE(sampling_strategy='all')
     data, target = sampler.fit_resample(data, target)
