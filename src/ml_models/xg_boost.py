@@ -9,7 +9,7 @@ from mlflow import log_params, log_metrics, start_run
 
 from ml_functions import *
 
-def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='standard_run', comment='no comment'):
+def xgb_model(x_train, x_valid, x_test, x_anomalies, y_train, y_valid, y_test, y_anomalies, run_name_='standard_run', comment='no comment'):
 
     mlflow.set_experiment('xgboost_lwd')
     mlflow.xgboost.autolog()
