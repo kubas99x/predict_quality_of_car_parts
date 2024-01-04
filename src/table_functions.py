@@ -238,7 +238,7 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.9):
     return final_table_droped
 
 def read_data_for_traning(fileName):
-    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies', 'y_train', 'y_valid', 'y_test', 'y_anomalies']
     ml_data_ = {key: None for key in data_keys}
     for key in ml_data_:
         ml_data_[key] = load_csv(f'{key}_{fileName}.csv')
@@ -283,10 +283,11 @@ def split_data(final_table, train_set_size=0.80, n_neighbors=20, ok_samples = 50
 
     print('Detecting and removing outliers:')
     whole_df, target, x_anomalies, y_anomalies = apply_lof(whole_df, n=n_neighbors)
-    whole_df, target = over_under_sampling(whole_df, target, ok_samples)
-
+    
     x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
+
+    x_train, y_train = over_under_sampling(x_train, y_train, ok_samples)
 
     return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'x_anomalies': x_anomalies, 
             'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test, 'y_anomalies': y_anomalies}

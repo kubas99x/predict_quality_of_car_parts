@@ -3,7 +3,6 @@ from tensorflow.keras import layers
 from mlflow import log_params, log_metrics, start_run
 import mlflow
 import mlflow.keras
-import tensorflow as tf
 from sklearn.metrics import accuracy_score, recall_score
 import os 
 
@@ -14,44 +13,30 @@ from ml_functions import *
 
 
 def compile_fit_evaluate_model(x_train_, x_valid_, x_test_, y_train, y_valid, y_test, epochs_=10,
-                               batch_size_=64, optimizer_='adam', comment='no comment', run_name_='standard_run',
-                                model_number = 1, drop_neurons = 0.5, to_dict=False):
+                               batch_size_=64, optimizer_='adam',metrics_='accuracy', comment='no comment', run_name_='standard_run',
+                                model_number = 1, drop_neurons = 0.5):
     
     x_train = np.copy(x_train_)
     x_valid = np.copy(x_valid_)
     x_test = np.copy(x_test_)
-
-    # y_train = y_train['our_final_status'].squeeze().astype('float32')
-    # y_test = y_test['our_final_status'].squeeze().astype('float32')
-    # y_valid = y_valid['our_final_status'].squeeze().astype('float32')
-
-    #metrics_ = ['accuracy', tf.keras.metrics.Recall(class_id=1, name='recall_1'),
-    #            tf.keras.metrics.Recall(class_id=0, name='recall_0'), tf.keras.metrics.F1Score(threshold=0.5, name='f1_score')]
     
-    #metrics_ = ['accuracy', tf.keras.metrics.Recall(class_id=1, name='recall_1')]
-    #metrics_ = ['accuracy', tf.keras.metrics.F1Score(threshold=0.5, name='f1_score')]
-    #metrics_ = ['accuracy']
-    metrics_ = [tf.keras.metrics.BinaryAccuracy(), tf.keras.metrics.Recall(class_id=0, name='recall_0', thresholds=0.5),
-                 tf.keras.metrics.SpecificityAtSensitivity(sensitivity= 0.5, name='specificity')]
-
-    artifact_directory = "neural_network_v1"
+    artifact_directory = "neural_network"
     mlflow.set_experiment(artifact_directory)
     mlflow.tensorflow.autolog()
 
     with start_run(run_name=run_name_):
         
-        model = return_model(model_number, x_train.shape[1], drop_=drop_neurons)
+        model = return_model(model_number, x_test.shape[1], drop_=drop_neurons)
 
         # custom_optimizer = Adam(learning_rate=0.001)
         # Adam zajebiscie pasuje do dużych modeli a binary_crossentropy do binarnej klasyfikacji, 'adam'
-        model.compile(loss='binary_crossentropy', optimizer=optimizer_, metrics=metrics_) 
-        #callbackStopping = tf.keras.callbacks.EarlyStopping(monitor='loss', mode='auto', verbose=1, patience=5)
-
+        model.compile(loss='binary_crossentropy', optimizer=optimizer_, metrics=[f'{metrics_}']) 
+        #callbackStopping = EarlyStopping(monitor='loss', mode='auto', verbose=1, patience=5)
         #epoch - ilosc przejsc po calym datasecie, batch_size - ile wierszy jest branych w jednej iteracji
         #, callbacks = [callbackStopping]
         model.fit(x_train, y_train, epochs=epochs_, batch_size=batch_size_, validation_data=(x_valid, y_valid)) 
 
-        loss, accuracy, recall_0_, recall_1_ = model.evaluate(x_test, y_test)
+        loss, accuracy = model.evaluate(x_test, y_test)
         print(f'loss: {loss}')
         print(f'accuracy: {accuracy}')
 

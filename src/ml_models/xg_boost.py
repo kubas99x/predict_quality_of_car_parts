@@ -4,14 +4,14 @@ import mlflow
 import xgboost as xgb
 from xgboost import XGBClassifier
 from sklearn.model_selection import GridSearchCV, KFold
-from sklearn.metrics import accuracy_score, recall_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, recall_score
 from mlflow import log_params, log_metrics, start_run
 
 from ml_functions import *
 
 def xgb_model(x_train, x_valid, x_test, x_anomalies, y_train, y_valid, y_test, y_anomalies, run_name_='standard_run', comment='no comment'):
 
-    mlflow.set_experiment('xgboost_lwd')
+    mlflow.set_experiment(run_name_)
     mlflow.xgboost.autolog()
 
     cv = KFold(n_splits=5, shuffle=True, random_state=1011).split(X=x_train, y=y_train)
@@ -54,13 +54,17 @@ def xgb_model(x_train, x_valid, x_test, x_anomalies, y_train, y_valid, y_test, y
             predictions_proba = predictions_proba[:, 1]
             predictions_proba = predictions_proba.reshape(-1, 1)
 
-            # create and save 
+            # create and save plot of distribution of propability
             fig = distribution_of_probability_plot(predictions_proba, y_valid)
             mlflow.log_figure(fig, 'model_probability.png')
             
             # predit classes
             predictions = model.predict(x_valid)
             predictions = np.where(predictions > 0.5, 1, 0)
+
+            # create and save confusion matrix
+            cm = create_confusion_matrix(y_valid, predictions)
+            mlflow.log_figure(cm, 'confusion_matrix.png')
 
             # counting metrics
             recall_ok = recall_score(y_valid, predictions, pos_label=0)
@@ -70,5 +74,4 @@ def xgb_model(x_train, x_valid, x_test, x_anomalies, y_train, y_valid, y_test, y
             log_params(model_params)
             log_metrics({'recall_nok':recall_nok, 'recall_ok':recall_ok, 'acc_test':accuracy})
         mlflow.end_run()
-        
     return model

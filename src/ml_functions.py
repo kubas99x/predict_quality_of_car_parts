@@ -2,8 +2,11 @@ import mlflow.keras
 import mlflow
 import mlflow.tensorflow
 import umap
+import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.figure_factory as ff
 import numpy as np
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.decomposition import PCA
 
@@ -91,3 +94,19 @@ def pca_transformation(x_train_, x_valid_, x_test_, n_components_):
     x_test = pca.transform(x_test)
 
     return x_train, x_valid, x_test
+
+def create_confusion_matrix(y_true, y_pred):
+
+    cmat = confusion_matrix(y_true, y_pred)
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.matshow(cmat, cmap=plt.cm.Blues, alpha=0.3)
+    for i in range(cmat.shape[0]):
+        for j in range(cmat.shape[1]):
+            ax.text(x=j, y=i,s=cmat[i, j], va='center', ha='center', size='xx-large')
+    
+    ax.set_xlabel('Predictions', fontsize=18)
+    ax.set_ylabel('Actuals', fontsize=18)
+    ax.set_title('Confusion Matrix', fontsize=18)
+
+    return fig
