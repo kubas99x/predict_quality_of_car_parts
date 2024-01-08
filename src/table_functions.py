@@ -285,9 +285,10 @@ def split_data(final_table, train_set_size=0.80, n_neighbors=20, ok_samples = 50
     whole_df, target, x_anomalies, y_anomalies = apply_lof(whole_df, n=n_neighbors)
     
     x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
-    x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
-
     x_train, y_train = over_under_sampling(x_train, y_train, ok_samples)
+    x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
+    x_valid, y_valid = over_under_sampling(x_valid, y_valid, ok_samples=10000)
+   
 
     return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'x_anomalies': x_anomalies, 
             'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test, 'y_anomalies': y_anomalies}
