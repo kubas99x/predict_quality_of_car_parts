@@ -25,7 +25,7 @@ def read_data_from_database():
 
 if __name__ == '__main__':
 
-    readFromDatabase = False
+    readFromDatabase = True
     final_table = None
 
     if readFromDatabase:
@@ -43,11 +43,24 @@ if __name__ == '__main__':
         print('Categorize data')
         final_table = categorize_data(final_table)
 
+        print("Make test set from October")
+        filtered_data = final_table[(final_table['data_odlania'].dt.month >= 10) & (final_table['data_odlania'].dt.year >= 2023)]
+        final_table = final_table.iloc[:-int(filtered_data.shape[0])]
+
+        final_table.drop(columns='data_odlania', inplace = True)
+        filtered_data.drop(columns='data_odlania', inplace = True)
+        
         print('Drop columns with too much correlation')
-        final_table = drop_columns_with_too_much_corr(final_table)
+        final_table, high_corr_features = drop_columns_with_too_much_corr(final_table)
+
+        print('Drop columns in test data from October')
+        filtered_data = filtered_data.drop(columns= high_corr_features)
 
         print('Save final table')
         save_df_to_csv(final_table, 'final_table_before_normalization.csv')
+
+        print('Save test data from October')
+        save_df_to_csv(filtered_data, 'test_data_from_october.csv')
         
     else:
         print('Reading CSV file')
