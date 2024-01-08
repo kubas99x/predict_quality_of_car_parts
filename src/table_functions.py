@@ -9,7 +9,7 @@ import os
 def drop_unused_columns(data):
 
     dbtables = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KS']
-    columns = [['timestamp', 'data_znakowania', 'data_odlania', 'metal_level', 'metal_pressure', 'max_press_kolbenhub', 'oni_temp_curr_f2'],                    #MEB_DGM
+    columns = [['timestamp','data_znakowania', 'metal_level', 'metal_pressure', 'max_press_kolbenhub', 'oni_temp_curr_f2'],                    #MEB_DGM
     ['timestamp', 'update_time','id_meb_containers', 'packed_time', 'first_packed_time', 'production_step', 'status_koncowy'],                                  #MEB_DMC
     ['id_meb_grob', 'shift_number', 'last_operation', 'timestamp', 'production_date', 'reworkrequested',                                    
     'reworkdone', 'partcleaningisfinished', 'waitfortoolcheck', 'workingstep1', 'workingstep2', 
@@ -235,7 +235,7 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.9):
     print(f'Features with correlation > {corrTreshold} : {len(high_corr_features)}')
     final_table_droped = whole_df.drop(columns = high_corr_features)
 
-    return final_table_droped
+    return final_table_droped, high_corr_features
 
 def read_data_for_traning(fileName):
     data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies', 'y_train', 'y_valid', 'y_test', 'y_anomalies']
