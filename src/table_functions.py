@@ -59,8 +59,9 @@ def combine_final_table(data):
     data['MEB_DMC'] = data['MEB_DMC'].merge(data['MEB_KS'], on='id_dmc', how='left')
     data['MEB_DMC'].drop(columns=['rn'], inplace=True)
 
-    # przygotowywuję tabelę ONI_CIRCUITS do połączenia 
-    oni_circuits = data['ONI_CIRCUITS'].pivot(index='id_dmc', columns='circuit_nr', values=['assigment', 'flow', 'set_point', 'start_delay', 'temp', 'working_mode'])
+    # przygotowywuję tabelę ONI_CIRCUITS do połączenia
+    data['ONI_CIRCUITS'].drop(columns = ['assigment', 'working_mode', 'set_point'], inplace = True)
+    oni_circuits = data['ONI_CIRCUITS'].pivot(index='id_dmc', columns='circuit_nr', values=['flow', 'start_delay', 'temp'])
     oni_circuits.columns = oni_circuits.columns.map('{0[0]}_{0[1]}'.format) 
     oni_circuits.reset_index(inplace=True)
 
@@ -126,20 +127,20 @@ def standarize_data(final_table):
 
 def categorize_data(whole_df):
     final_table = whole_df.copy()
-    categorical_columns = []
-    for name in ['assigment', 'working_mode']:
-        for x in range(1,29):
-            categorical_columns.append(f'{name}_{x}')
+    # categorical_columns = []
+    # for name in ['assigment', 'working_mode']:
+    #     for x in range(1,29):
+    #         categorical_columns.append(f'{name}_{x}')
 
-    categorical_data = final_table[categorical_columns].astype('category')
-    categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
+    # categorical_data = final_table[categorical_columns].astype('category')
+    # categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
     
     
     final_table['our_final_status'] = final_table['our_final_status'].astype(int) - 1
     final_table['our_final_status'] = final_table['our_final_status'].astype('category')
-    final_table.drop(columns=categorical_columns, inplace=True)
-    
-    final_table = pd.concat([final_table, categorical_data], axis=1)
+
+    #final_table.drop(columns=categorical_columns, inplace=True)
+    #final_table = pd.concat([final_table, categorical_data], axis=1)
 
     return final_table
 
@@ -266,7 +267,7 @@ def apply_lof(whole_df, n):
 
     return whole_df, target, x_anomalies, y_anomalies
 
-def split_data(final_table, train_set_size=0.80, n_neighbors=20, ok_samples = 500000):
+def split_data(final_table, train_set_size=0.80, n_neighbors=20, ok_samples = 250000):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
