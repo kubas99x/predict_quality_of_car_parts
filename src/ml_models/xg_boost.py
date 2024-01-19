@@ -9,7 +9,7 @@ from mlflow import log_params, log_metrics, start_run
 
 from ml_functions import *
 
-def xgb_model(x_train, x_valid, x_test, x_anomalies, y_train, y_valid, y_test, y_anomalies, run_name_='standard_run', comment='no comment'):
+def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='standard_run', comment='no comment'):
 
     mlflow.set_experiment(run_name_)
     mlflow.xgboost.autolog()
@@ -17,14 +17,14 @@ def xgb_model(x_train, x_valid, x_test, x_anomalies, y_train, y_valid, y_test, y
     cv = KFold(n_splits=5, shuffle=True, random_state=1011).split(X=x_train, y=y_train)
 
     grid_params = {
-        'learning_rate': np.linspace(0.25, 0.3, 5),
+        'learning_rate': [0.275],
         'max_depth': [7],
-        'colsample_bytree': [0.7, 0.8, 0.9],
-        'subsample': [0.8, 0.9],
-        'min_child_weight': [2,3],
+        'colsample_bytree': [0.9],
+        'subsample': [0.8],
+        'min_child_weight': [2],
         'gamma': [0],
         'random_state': [1011],
-        'n_estimators': [200],
+        'n_estimators': [50],
         'booster': ['gbtree'],
         'objective': ['binary:logistic']
     }
