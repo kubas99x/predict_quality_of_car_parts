@@ -1,7 +1,7 @@
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import LocalOutlierFactor
-from imblearn.over_sampling import SMOTE
+#from imblearn.over_sampling import SMOTE
 from sklearn.utils import shuffle
 import pandas as pd
 import os
@@ -9,7 +9,7 @@ import os
 def drop_unused_columns(data):
 
     dbtables = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KS']
-    columns = [['timestamp','data_znakowania', 'metal_level', 'metal_pressure', 'max_press_kolbenhub', 'oni_temp_curr_f2'],                    #MEB_DGM
+    columns = [['timestamp','data_znakowania', 'metal_level', 'metal_pressure', 'max_press_kolbenhub', 'oni_temp_curr_f2'],                                     #MEB_DGM
     ['timestamp', 'update_time','id_meb_containers', 'packed_time', 'first_packed_time', 'production_step', 'status_koncowy'],                                  #MEB_DMC
     ['id_meb_grob', 'shift_number', 'last_operation', 'timestamp', 'production_date', 'reworkrequested',                                    
     'reworkdone', 'partcleaningisfinished', 'waitfortoolcheck', 'workingstep1', 'workingstep2', 
@@ -181,18 +181,18 @@ def normalize_0_1(whole_df, scaler=None):
 
 def normalize_and_save_to_csv(ml_data, file_name_, normalize_type = 'None'):
     ml_data_ = ml_data.copy()
-    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies',
-                 'y_train', 'y_valid', 'y_test', 'y_anomalies']
+    data_keys = ['x_train', 'x_valid', 'x_test', #'x_anomalies',
+                 'y_train', 'y_valid', 'y_test'] #, 'y_anomalies']
     if normalize_type == '0_1':
         ml_data_['x_train'], scaler = normalize_0_1(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_0_1(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_0_1(ml_data_['x_test'], scaler)
-        ml_data_['x_anomalies'] = normalize_0_1(ml_data_['x_anomalies'], scaler)
+        #ml_data_['x_anomalies'] = normalize_0_1(ml_data_['x_anomalies'], scaler)
     elif normalize_type == 'standard':
         ml_data_['x_train'], scaler = normalize_data(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_data(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_data(ml_data_['x_test'], scaler)
-        ml_data_['x_anomalies'] = normalize_data(ml_data_['x_anomalies'], scaler)
+        #ml_data_['x_anomalies'] = normalize_data(ml_data_['x_anomalies'], scaler)
 
     for key_ in data_keys:
         save_df_to_csv(ml_data_[key_], f'{key_}_{file_name_}.csv')
@@ -239,7 +239,7 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.9):
     return final_table_droped, high_corr_features
 
 def read_data_for_traning(fileName):
-    data_keys = ['x_train', 'x_valid', 'x_test', 'x_anomalies', 'y_train', 'y_valid', 'y_test', 'y_anomalies']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']#, 'y_anomalies',  'x_anomalies']
     ml_data_ = {key: None for key in data_keys}
     for key in ml_data_:
         ml_data_[key] = load_csv(f'{key}_{fileName}.csv')
@@ -267,7 +267,7 @@ def apply_lof(whole_df, n):
 
     return whole_df, target, x_anomalies, y_anomalies
 
-def split_data(final_table, train_set_size=0.80, n_neighbors=20, ok_samples = 250000):
+def split_data(final_table, train_set_size=0.80, samples = 350000):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
@@ -281,22 +281,23 @@ def split_data(final_table, train_set_size=0.80, n_neighbors=20, ok_samples = 25
     #nasz parametr klasy:
     'our_final_status'
     whole_df = final_table.copy()
+    target = whole_df.pop('our_final_status')
 
-    print('Detecting and removing outliers:')
-    whole_df, target, x_anomalies, y_anomalies = apply_lof(whole_df, n=n_neighbors)
+    #print('Detecting and removing outliers:')
+    #whole_df, target, x_anomalies, y_anomalies = apply_lof(whole_df, n=n_neighbors)
     
     x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
-    x_train, y_train = over_under_sampling(x_train, y_train, ok_samples)
+    x_train, y_train = over_under_sampling(x_train, y_train, samples)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
-    x_valid, y_valid = over_under_sampling(x_valid, y_valid, ok_samples=10000)
+    #x_valid, y_valid = over_under_sampling(x_valid, y_valid, ok_samples=10000)
    
 
-    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, 'x_anomalies': x_anomalies, 
-            'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test, 'y_anomalies': y_anomalies}
+    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, #'x_anomalies': x_anomalies, 
+            'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test} #, 'y_anomalies': y_anomalies}
             
     # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
-def over_under_sampling(data, target, ok_samples):
+def over_under_sampling(data, target, samples):
 
     data_copy = data.copy()
     target_copy = target.copy()
@@ -304,13 +305,14 @@ def over_under_sampling(data, target, ok_samples):
     df = pd.concat([data_copy, target_copy], axis=1)
 
     data_copy_ok = df[df['our_final_status'] == 0]
-    data_copy_ok = data_copy_ok.sample(n=ok_samples, axis=0)
+    data_copy_ok = data_copy_ok.sample(n=samples, replace=False, axis=0)
 
-    data = pd.concat([data_copy_ok, df[df['our_final_status'] == 1]], axis=0)
+    data_copy_nok = df[df['our_final_status'] == 1]
+    data_copy_nok = data_copy_nok.sample(n=samples, axis=0, replace=True)
+    
+    data = pd.concat([data_copy_ok, data_copy_nok], axis=0)
     target = data.pop('our_final_status')
-
-    sampler = SMOTE(sampling_strategy='all')
-    data, target = sampler.fit_resample(data, target)
+    
     print('Amount of classes:')
     print(target.value_counts())
     return data, target
