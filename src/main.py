@@ -35,7 +35,7 @@ if __name__ == '__main__':
         final_table = combine_final_table(data)
 
         print('Create final status')
-        final_table = create_final_status(final_table)
+        final_table = create_final_status(final_table) # nie usuwa już ID z tabelii
 
         print('Drop columns not used in ml')
         final_table = drop_columns_not_used_in_ml(final_table)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         filtered_data = final_table[(final_table['data_odlania'].dt.month >= 10) & (final_table['data_odlania'].dt.year >= 2023)]
         final_table = final_table.iloc[:-int(filtered_data.shape[0])]
 
-        final_table.drop(columns='data_odlania', inplace = True)
+        final_table.drop(columns=['data_odlania', 'id'], inplace = True)
         filtered_data.drop(columns='data_odlania', inplace = True)
         
         print('Drop columns with too much correlation')

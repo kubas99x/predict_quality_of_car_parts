@@ -107,7 +107,7 @@ def create_final_status(final_table):
     final_table['our_final_status'] = final_table.apply(lambda row: max(int(row['status']), row['status_ko'], row['statusszczelnosc'], row['statusdmc']), axis=1)
     print(final_table['our_final_status'].value_counts())
     final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
-                              'id', 'part_type', 'nrprogramu', 'id_dmc_DGM', 
+                              'part_type', 'nrprogramu', 'id_dmc_DGM', 
                               'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
                               'dmc_DMC', 'dmc_casting', 'nok_strefa', 'nok_rodzaj'], inplace=True)  # 'nr_dgm' na razie nie kasuje bo testuje dane - JR 25.09
 
