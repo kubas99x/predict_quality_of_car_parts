@@ -47,8 +47,10 @@ if __name__ == '__main__':
         filtered_data = final_table[(final_table['data_odlania'].dt.month >= 10) & (final_table['data_odlania'].dt.year >= 2023)]
         final_table = final_table.iloc[:-int(filtered_data.shape[0])]
 
-        final_table.drop(columns=['data_odlania', 'id'], inplace = True)
-        filtered_data.drop(columns='data_odlania', inplace = True)
+        save_df_to_csv(final_table, 'final_table_test_delete.csv')
+        
+        final_table.drop(columns=['data_odlania','nr_dgm', 'id'], inplace = True)
+        #filtered_data.drop(columns='data_odlania', inplace = True)
         
         print('Drop columns with too much correlation')
         final_table, high_corr_features = drop_columns_with_too_much_corr(final_table)
@@ -72,9 +74,9 @@ if __name__ == '__main__':
     print("Saving training data nn")
     normalize_and_save_to_csv(ml_data, file_name_='n_n_lwd')
 
-    print("Saving training data 0_1")
-    normalize_and_save_to_csv(ml_data, file_name_='0_1_lwd', normalize_type='0_1')
+    # print("Saving training data 0_1")
+    # normalize_and_save_to_csv(ml_data, file_name_='0_1_lwd', normalize_type='0_1')
 
-    print("Saving training data s_s")
-    normalize_and_save_to_csv(ml_data, file_name_='s_s_lwd', normalize_type='standard')
+    # print("Saving training data s_s")
+    # normalize_and_save_to_csv(ml_data, file_name_='s_s_lwd', normalize_type='standard')
     

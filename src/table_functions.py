@@ -216,7 +216,7 @@ def distinct_machine(final_table):
 
 def drop_columns_not_used_in_ml(final_table):
     whole_df = final_table.copy()
-    columns = ['nr_dgm', 'rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
+    columns = ['rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
             'temp_workpiece', 'temp_hydraulics', 'pressure_pcf_1', 'pressure_pcf_2', 
             'pressure_pcf_3', 'cisnienie', 'przeciek', 'temperaturatestu', 'temp_pieca']
     whole_df.drop(columns=columns, inplace=True)
