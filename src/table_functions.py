@@ -23,8 +23,9 @@ def drop_unused_columns(data):
     
     return data
 
-def combine_final_table(data):
+def combine_final_table(data_, dgm_smallest = 8, dgm_biggest = 10):
 
+    data = data_.copy()
     # usuwanie znaków białych z DMC[MEB_DGM] i DMC_CASTING[MEB_DMC]
     data['MEB_DMC'].dmc_casting = data['MEB_DMC']['dmc_casting'].str.strip()
     data['MEB_DGM'].dmc = data['MEB_DGM']['dmc'].str.strip()
@@ -33,7 +34,7 @@ def combine_final_table(data):
     data['MEB_DMC'] = data['MEB_DMC'][~data['MEB_DMC']['dmc'].str.contains('WORKPIECE', case=False, na=False)]
 
     # wybieranie rekordów dla MEB+ 
-    data['MEB_DGM'] = data['MEB_DGM'][(data['MEB_DGM']['nr_dgm'].between(8, 10)) & (data['MEB_DGM']['dmc'].apply(lambda x: len(str(x)) == 21))]
+    data['MEB_DGM'] = data['MEB_DGM'][(data['MEB_DGM']['nr_dgm'].between(dgm_smallest, dgm_biggest)) & (data['MEB_DGM']['dmc'].apply(lambda x: len(str(x)) == 21))]
     # usunięcie anomalii z MEB_DMC
     data['MEB_DMC'] = data['MEB_DMC'][data['MEB_DMC']['dmc'].str[:3] == '0MH']
 
@@ -216,7 +217,7 @@ def distinct_machine(final_table):
 
 def drop_columns_not_used_in_ml(final_table):
     whole_df = final_table.copy()
-    columns = ['nr_dgm', 'rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
+    columns = ['rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
             'temp_workpiece', 'temp_hydraulics', 'pressure_pcf_1', 'pressure_pcf_2', 
             'pressure_pcf_3', 'cisnienie', 'przeciek', 'temperaturatestu', 'temp_pieca']
     whole_df.drop(columns=columns, inplace=True)
@@ -305,7 +306,7 @@ def over_under_sampling(data, target, samples):
     df = pd.concat([data_copy, target_copy], axis=1)
 
     data_copy_ok = df[df['our_final_status'] == 0]
-    data_copy_ok = data_copy_ok.sample(n=samples, replace=False, axis=0)
+    data_copy_ok = data_copy_ok.sample(n=samples, replace=True, axis=0)
 
     data_copy_nok = df[df['our_final_status'] == 1]
     data_copy_nok = data_copy_nok.sample(n=samples, axis=0, replace=True)
