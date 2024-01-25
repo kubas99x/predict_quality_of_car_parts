@@ -60,7 +60,7 @@ def distribution_of_probability_plot(predictions, y_test,show_figure=False):
     ax.set_xticks(bar_positions - width / 2)
     ax.set_xticklabels(x_ticks_labels, fontsize=8)
     ax.legend()
-    ax.set_ylim(0, 50)  # Set y-axis limit to 100%
+    ax.set_ylim(0, 75)  # Set y-axis limit to 100%
     
     if show_figure:
         plt.show()
