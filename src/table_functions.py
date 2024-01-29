@@ -98,15 +98,62 @@ def create_final_status(final_table):
     # statusy dmc 2 zostały całkowicie wywalone (jest ich ok. 450)
     # co do statusu szczelności to czasami na to wpływ ma porowatość wynikająca z odlewania,
     # jednak jest dużo błędów wynikających z obróbki czy zepsutej uszczelki
+#     status
+# 1     687715
+# 10     11808      # poczatkowe wtryski na rozgrzanie
+# 5       8340
+# 11      6989
+# 3       6337      # zostawilem -  NIO DGM
+# 7       3132
+# 14      2940      # zostawilem - NIO prozni
+# 4       2698
+# 8        595
 
     final_table = final_table[~final_table['status'].isin(['4', '5', '7', '8', '10', '11'])]
     final_table['status'] = final_table['status'].replace(['3', '14'], '2')
-    final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])]
+
+    final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])] # KO
     final_table = final_table.loc[~final_table['statusszczelnosc'].isin([0, 3])]
     final_table = final_table.loc[~final_table['statusdmc'].isin([0,2])]
 
-    final_table['our_final_status'] = final_table.apply(lambda row: max(int(row['status']), row['status_ko'], row['statusszczelnosc'], row['statusdmc']), axis=1)
-    print(final_table['our_final_status'].value_counts())
+    final_table = final_table.loc[final_table['nok_rodzaj'].isin([0, 102, 201, 103, 101])]
+    final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([102, 201, 103, 101], 2)
+    final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([0], 1)
+
+    final_table['our_final_status'] = final_table.apply(lambda row: max(int(row['status']), row['nok_rodzaj'], row['statusszczelnosc'], row['statusdmc']), axis=1)
+
+    print(f"Final number of NOK parts: {final_table['our_final_status'].value_counts()}")
+
+    final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
+                              'part_type', 'nrprogramu', 'id_dmc_DGM', 
+                              'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
+                              'dmc_DMC', 'dmc_casting', 'nok_strefa', 'nok_rodzaj'], inplace=True)  # 'nr_dgm' na razie nie kasuje bo testuje dane - JR 25.09
+
+    return final_table
+
+def create_final_status_2(final_table):
+    # statusy dmc 2 zostały całkowicie wywalone (jest ich ok. 450)
+    # co do statusu szczelności to czasami na to wpływ ma porowatość wynikająca z odlewania,
+    # jednak jest dużo błędów wynikających z obróbki czy zepsutej uszczelki
+    # nok_rodzaj
+
+    final_table = final_table[final_table['status'].isin(['1'])]
+
+    final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])] # 'status_ko_DMC'
+    final_table = final_table.loc[~final_table['statusszczelnosc'].isin([0, 3])]
+    
+    final_table = final_table.loc[~final_table['statusdmc'].isin([0,2])]
+
+    print(f'Number of NOK parts of DGM on KO: {final_table["nok_rodzaj"].isin([102, 201, 103, 101]).sum()}')
+
+    final_table = final_table.loc[final_table['nok_rodzaj'].isin([0, 102, 201, 103, 101])]
+    final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([102, 201, 103, 101], 2)
+    final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([0], 1)
+
+    final_table['our_final_status'] = final_table.apply(lambda row: max(row['nok_rodzaj'], row['statusszczelnosc'], row['statusdmc']), axis=1)
+    
+    print(f'Final number of NOK parts: {final_table["our_final_status"].value_counts()}')
+    
     final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
                               'part_type', 'nrprogramu', 'id_dmc_DGM', 
                               'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
@@ -268,7 +315,7 @@ def apply_lof(whole_df, n):
 
     return whole_df, target, x_anomalies, y_anomalies
 
-def split_data(final_table, train_set_size=0.80, samples = 350000):
+def split_data(final_table, train_set_size=0.80, samples = 100000):
     
     # do modelowania:
     'czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe', 'nachdruck_hub', 'anguss', 'oni_temp_curr_f1', 
