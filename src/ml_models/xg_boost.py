@@ -9,7 +9,7 @@ from mlflow import log_params, log_metrics, start_run
 
 from ml_functions import *
 
-def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='standard_run', comment='no comment'):
+def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  run_name_='standard_run', comment='no comment'):
 
     mlflow.set_experiment(run_name_)
     mlflow.xgboost.autolog()
@@ -40,7 +40,7 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, run_name_='sta
     grid_search.fit(x_train, y_train, **evaluation_parameters)
 
     for i, model_params in enumerate(grid_search.cv_results_['params']):
-        rn = f'xgboost_model_{i}_nn'
+        rn = f'xgboost_{model_name}'
 
         
         with mlflow.start_run(run_name=rn):
