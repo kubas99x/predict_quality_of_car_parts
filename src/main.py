@@ -23,22 +23,7 @@ def read_data_from_database():
     
     return data
 
-def prepare_data(table_data, version_of_status):
-
-    print('Create final status')
-    if version_of_status == '1':
-        table_data = create_final_status(table_data)
-    elif version_of_status == '2': 
-        table_data = create_final_status_2(table_data)
-
-    print('Drop columns not used in ml')
-    table_data = drop_columns_not_used_in_ml(table_data)
-    print('Categorize data')
-    table_data = categorize_data(table_data)
-
-    return table_data
-
-def make_set_for_dgm(all_data, from_dgm=8, to_dgm=10, version_of_status = '1', start_year= 2021):
+def make_set_for_dgm(all_data, version_of_status, from_dgm=8, to_dgm=10, start_year= 2021):
 
     print(f"Making set for dgm {from_dgm} to {to_dgm}, status version: {version_of_status}, from year: {start_year}")
     dgm_all = copy.deepcopy(all_data)
@@ -48,7 +33,18 @@ def make_set_for_dgm(all_data, from_dgm=8, to_dgm=10, version_of_status = '1', s
     if start_year > 2021:
         dgm_table = dgm_table[dgm_table['data_odlania'].dt.year >= start_year]
 
-    dgm = prepare_data(dgm_table, version_of_status)
+    print('Create final status')
+    if version_of_status == '1':
+        print("VERSION 1")
+        dgm_table = create_final_status(dgm_table)
+    elif version_of_status == '2': 
+        print("VERSION 2")
+        dgm_table = create_final_status_2(dgm_table)
+
+    print('Drop columns not used in ml')
+    dgm_table= drop_columns_not_used_in_ml(dgm_table)
+    print('Categorize data')
+    dgm = categorize_data(dgm_table)
 
     print("Make test set from October")
     filtered_data_dgm = dgm[(dgm['data_odlania'].dt.month >= 10) & (dgm['data_odlania'].dt.year >= 2023)]
@@ -69,20 +65,20 @@ if __name__ == '__main__':
 
     data = read_data_from_database()
 
-    make_set_for_dgm(data, 9, 10, version_of_status='1')
-    make_set_for_dgm(data, 9, 10, version_of_status='1', start_year= 2023)
-    make_set_for_dgm(data, 9, 10, version_of_status='2')
-    make_set_for_dgm(data, 9, 10, version_of_status='2', start_year= 2023)
+    make_set_for_dgm(data, '1', 9, 10)
+    make_set_for_dgm(data, '1', 9, 10, start_year= 2023)
+    make_set_for_dgm(data, '2', 9, 10)
+    make_set_for_dgm(data, '2', 9, 10, start_year= 2023)
 
-    make_set_for_dgm(data, 9, 9, version_of_status='1')
-    make_set_for_dgm(data, 9, 9, version_of_status='1', start_year= 2023)
-    make_set_for_dgm(data, 9, 9, version_of_status='2')
-    make_set_for_dgm(data, 9, 9, version_of_status='2', start_year= 2023)
+    make_set_for_dgm(data, '1', 9, 9)
+    make_set_for_dgm(data, '1', 9, 9, start_year= 2023)
+    make_set_for_dgm(data, '2', 9, 9)
+    make_set_for_dgm(data, '2', 9, 9, start_year= 2023)
 
-    make_set_for_dgm(data, 10, 10, version_of_status='1')
-    make_set_for_dgm(data, 10, 10, version_of_status='1', start_year= 2023)
-    make_set_for_dgm(data, 10, 10, version_of_status='2')
-    make_set_for_dgm(data, 10, 10, version_of_status='2', start_year= 2023)
+    make_set_for_dgm(data, '1', 10, 10)
+    make_set_for_dgm(data, '1', 10, 10, start_year= 2023)
+    make_set_for_dgm(data, '2', 10, 10)
+    make_set_for_dgm(data, '2', 10, 10, start_year= 2023)
 
 
     

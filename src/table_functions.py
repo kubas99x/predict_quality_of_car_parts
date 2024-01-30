@@ -95,35 +95,44 @@ def combine_final_table(data_, dgm_smallest = 8, dgm_biggest = 10):
     return final_table
 
 def create_final_status(final_table):
-    # statusy dmc 2 zostały całkowicie wywalone (jest ich ok. 450)
-    # co do statusu szczelności to czasami na to wpływ ma porowatość wynikająca z odlewania,
-    # jednak jest dużo błędów wynikających z obróbki czy zepsutej uszczelki
-#     status
-# 1     687715
-# 10     11808      # poczatkowe wtryski na rozgrzanie
-# 5       8340
-# 11      6989
-# 3       6337      # zostawilem -  NIO DGM
-# 7       3132
-# 14      2940      # zostawilem - NIO prozni
-# 4       2698
-# 8        595
+    
+    final_table['status'] = final_table['status'].astype(int)
+    final_table['nok_rodzaj'] = final_table['nok_rodzaj'].fillna(0)
+    #final_table['nok_rodzaj'] = final_table['nok_rodzaj'].astype(int)
+    
+    print(final_table['status'].value_counts())
+    final_table = final_table[final_table['status'].isin([0,1,3,14])]
+    final_table['status'] = final_table['status'].replace([3, 14], 2)
 
-    final_table = final_table[~final_table['status'].isin(['4', '5', '7', '8', '10', '11'])]
-    final_table['status'] = final_table['status'].replace(['3', '14'], '2')
+    print('####################')
+    print('status counts')
+    print(final_table['status'].value_counts())
 
     final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])] # KO
     final_table = final_table.loc[~final_table['statusszczelnosc'].isin([0, 3])]
     final_table = final_table.loc[~final_table['statusdmc'].isin([0,2])]
+    print(f'Number of NOK parts on DGM: {final_table["status"].isin([2]).sum()}')
+    print(f'Number of NOK parts of DGM on KO: {final_table["nok_rodzaj"].isin([102, 201, 103, 101]).sum()}')
+
+    print('####################')
+    print('nok_rodzaj counts')
+    print(final_table['nok_rodzaj'].value_counts())
 
     final_table = final_table.loc[final_table['nok_rodzaj'].isin([0, 102, 201, 103, 101])]
     final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([102, 201, 103, 101], 2)
     final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([0], 1)
 
-    final_table['our_final_status'] = final_table.apply(lambda row: max(int(row['status']), row['nok_rodzaj'], row['statusszczelnosc'], row['statusdmc']), axis=1)
+    print('####################')
+    print('nok_rodzaj counts')
+    print(final_table['nok_rodzaj'].value_counts())
 
+    print('####################')
+    print('status counts 2')
+    print(final_table['status'].value_counts())
+    
+    final_table['our_final_status'] = final_table.apply(lambda row: max(row['status'], row['nok_rodzaj'], row['statusszczelnosc'], row['statusdmc']), axis=1)
+    #final_table['our_final_status'] = final_table[['status', 'nok_rodzaj', 'statusszczelnosc', 'statusdmc']].apply(lambda row: max(int(row['status']), row['nok_rodzaj'], row['statusszczelnosc'], row['statusdmc']), axis=1)
     print(f"Final number of NOK parts: {final_table['our_final_status'].value_counts()}")
-
     final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
                               'part_type', 'nrprogramu', 'id_dmc_DGM', 
                               'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
@@ -132,28 +141,43 @@ def create_final_status(final_table):
     return final_table
 
 def create_final_status_2(final_table):
-    # statusy dmc 2 zostały całkowicie wywalone (jest ich ok. 450)
-    # co do statusu szczelności to czasami na to wpływ ma porowatość wynikająca z odlewania,
-    # jednak jest dużo błędów wynikających z obróbki czy zepsutej uszczelki
-    # nok_rodzaj
-
-    final_table = final_table[final_table['status'].isin(['1'])]
-
-    final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])] # 'status_ko_DMC'
-    final_table = final_table.loc[~final_table['statusszczelnosc'].isin([0, 3])]
     
-    final_table = final_table.loc[~final_table['statusdmc'].isin([0,2])]
+    final_table['status'] = final_table['status'].astype(int)
+    final_table['nok_rodzaj'] = final_table['nok_rodzaj'].fillna(0)
+    #final_table['nok_rodzaj'] = final_table['nok_rodzaj'].astype(int)
+    
+    print(final_table['status'].value_counts())
+    final_table = final_table[final_table['status'].isin([1])]
 
+    print('####################')
+    print('status counts')
+    print(final_table['status'].value_counts())
+
+    final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])] # KO
+    final_table = final_table.loc[~final_table['statusszczelnosc'].isin([0, 3])]
+    final_table = final_table.loc[~final_table['statusdmc'].isin([0,2])]
+    print(f'Number of NOK parts on DGM: {final_table["status"].isin([2]).sum()}')
     print(f'Number of NOK parts of DGM on KO: {final_table["nok_rodzaj"].isin([102, 201, 103, 101]).sum()}')
+
+    print('####################')
+    print('nok_rodzaj counts')
+    print(final_table['nok_rodzaj'].value_counts())
 
     final_table = final_table.loc[final_table['nok_rodzaj'].isin([0, 102, 201, 103, 101])]
     final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([102, 201, 103, 101], 2)
     final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([0], 1)
 
+    print('####################')
+    print('nok_rodzaj counts')
+    print(final_table['nok_rodzaj'].value_counts())
+
+    print('####################')
+    print('status counts 2')
+    print(final_table['status'].value_counts())
+    
     final_table['our_final_status'] = final_table.apply(lambda row: max(row['nok_rodzaj'], row['statusszczelnosc'], row['statusdmc']), axis=1)
     
-    print(f'Final number of NOK parts: {final_table["our_final_status"].value_counts()}')
-    
+    print(f"Final number of NOK parts: {final_table['our_final_status'].value_counts()}")
     final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
                               'part_type', 'nrprogramu', 'id_dmc_DGM', 
                               'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
