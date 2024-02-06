@@ -9,7 +9,7 @@ from mlflow import log_params, log_metrics, start_run
 
 from ml_functions import *
 
-def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  run_name_='standard_run', comment='no comment'):
+def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test,  run_name_='standard_run', comment='no comment'):
 
     mlflow.set_experiment(run_name_)
     mlflow.xgboost.autolog()
@@ -17,12 +17,12 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  r
     cv = KFold(n_splits=5, shuffle=True, random_state=1011).split(X=x_train, y=y_train)
 
     grid_params = {
-        'learning_rate': [0.275],
-        'max_depth': [7],
-        'colsample_bytree': [0.9],
-        'subsample': [0.8],
-        'min_child_weight': [2],
-        'gamma': [0],
+        'learning_rate': [0.25, 0.275, 0.3],
+        'max_depth': [5, 6, 7, 8],
+        'colsample_bytree': [0.8, 0.9, 1],
+        'subsample': [0.7, 0.8, 0.9],
+        'min_child_weight': [1, 2, 3],
+        'gamma': [0, 0.1, 0.2],
         'random_state': [1011],
         'n_estimators': [50],
         'booster': ['gbtree'],
@@ -40,7 +40,7 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  r
     grid_search.fit(x_train, y_train, **evaluation_parameters)
 
     for i, model_params in enumerate(grid_search.cv_results_['params']):
-        rn = f'xgboost_{model_name}'
+        rn = f'xgboost_{i}'
 
         
         with mlflow.start_run(run_name=rn):
@@ -76,11 +76,12 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  r
         mlflow.end_run()
     return model
 
-def xgb_model_no_grid(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  run_name_='standard_run', comment='no comment'):
+def xgb_model_no_grid(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  run_name_='standard_run', comment='no comment', threshold=0.9):
 
     mlflow.set_experiment(run_name_)
     mlflow.xgboost.autolog()
 
+    # BEST PARAMS
     grid_params = {
         'learning_rate': 0.275,
         'max_depth': 7,
@@ -107,7 +108,7 @@ def xgb_model_no_grid(x_train, x_valid, x_test, y_train, y_valid, y_test, model_
         fig = distribution_of_probability_plot(predictions_proba, y_valid)
         mlflow.log_figure(fig, 'model_probability.png')
 
-        predictions = np.where(predictions_proba > 0.5, 1, 0)
+        predictions = np.where(predictions_proba > threshold, 1, 0)
 
         cm = create_confusion_matrix(y_valid, predictions)
         mlflow.log_figure(cm, 'confusion_matrix.png')
