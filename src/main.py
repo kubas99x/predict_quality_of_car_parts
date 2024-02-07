@@ -36,10 +36,10 @@ def make_set_for_dgm(all_data, version_of_status, from_dgm=8, to_dgm=10, start_y
     print('Create final status')
     if version_of_status == '1':
         print("VERSION 1")
-        dgm_table = create_final_status(dgm_table)
+        dgm_table = create_final_status(dgm_table, version_of_status)
     elif version_of_status == '2': 
         print("VERSION 2")
-        dgm_table = create_final_status_2(dgm_table)
+        dgm_table = create_final_status(dgm_table, version_of_status)
 
     print('Drop columns not used in ml')
     dgm_table= drop_columns_not_used_in_ml(dgm_table)
