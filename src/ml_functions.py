@@ -67,34 +67,6 @@ def distribution_of_probability_plot(predictions, y_test,show_figure=False):
 
     return fig
 
-
-
-def umap_transformation(x_train_, x_valid_, x_test_, n_components_umap, umap_min_dist):
-
-    x_train = np.copy(x_train_)
-    x_valid = np.copy(x_valid_)
-    x_test = np.copy(x_test_)
-
-    umap_model = umap.UMAP(n_components=n_components_umap, min_dist=umap_min_dist)
-    x_train = umap_model.fit_transform(x_train)
-    x_valid = umap_model.transform(x_valid)
-    x_test = umap_model.transform(x_test)
-
-    return x_train, x_valid, x_test
-
-def pca_transformation(x_train_, x_valid_, x_test_, n_components_):
-
-    x_train = np.copy(x_train_)
-    x_valid = np.copy(x_valid_)
-    x_test = np.copy(x_test_)
-
-    pca = PCA(n_components=n_components_)
-    x_train = pca.fit_transform(x_train)
-    x_valid = pca.transform(x_valid)
-    x_test = pca.transform(x_test)
-
-    return x_train, x_valid, x_test
-
 def create_confusion_matrix(y_true, y_pred):
 
     cmat = confusion_matrix(y_true, y_pred)
