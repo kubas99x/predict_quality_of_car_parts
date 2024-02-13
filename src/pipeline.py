@@ -4,7 +4,7 @@ import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 from ml_functions import *
 from sklearn.metrics import accuracy_score, recall_score
-from db_queries import username, password, dsn, dbhostname, service_name, dbtables, querys
+from db_queries import USERNAME, PASSWORD, DBHOSTNAME, SERVICE_NAME
 from table_functions import *
 import mlflow.pyfunc
 import xgboost as xgb
@@ -42,7 +42,7 @@ def read_last_meb_dgm(last_id = 0):
             """
     
     try:
-        sqlalchemy_engine="oracle+cx_oracle://"+username+":"+password+"@"+dbhostname+"/?service_name="+service_name
+        sqlalchemy_engine="oracle+cx_oracle://"+USERNAME+":"+PASSWORD+"@"+DBHOSTNAME+"/?service_name="+SERVICE_NAME
         engine = sqlalchemy.create_engine(sqlalchemy_engine, arraysize=1000)
         data.update({'MEB_DGM': pd.read_sql(query, engine)})
     except SQLAlchemyError as e:
@@ -71,7 +71,7 @@ def read_oni(data):
 
     result_df = pd.DataFrame()
     try:
-        sqlalchemy_engine="oracle+cx_oracle://"+username+":"+password+"@"+dbhostname+"/?service_name="+service_name
+        sqlalchemy_engine="oracle+cx_oracle://"+USERNAME+":"+PASSWORD+"@"+DBHOSTNAME+"/?service_name="+SERVICE_NAME
         engine = sqlalchemy.create_engine(sqlalchemy_engine, arraysize=1000)
 
         for ids in ids_ranges_tuples:

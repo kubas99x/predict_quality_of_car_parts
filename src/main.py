@@ -3,7 +3,7 @@ import sqlalchemy
 import copy
 from sqlalchemy.exc import SQLAlchemyError
 
-from db_queries import username, password, dsn, dbhostname, service_name, dbtables, querys
+from db_queries import USERNAME, PASSWORD, DBHOSTNAME, SERVICE_NAME, dbtables, queries
 from table_functions import *
 
 def read_data_from_database():
@@ -11,9 +11,9 @@ def read_data_from_database():
     data = {}
 
     try:
-        sqlalchemy_engine="oracle+cx_oracle://"+username+":"+password+"@"+dbhostname+"/?service_name="+service_name
+        sqlalchemy_engine="oracle+cx_oracle://"+USERNAME+":"+PASSWORD+"@"+DBHOSTNAME+"/?service_name="+SERVICE_NAME
         engine = sqlalchemy.create_engine(sqlalchemy_engine, arraysize=1000)
-        for table, query in zip(dbtables, querys):
+        for table, query in zip(dbtables, queries):
             data.update({table: pd.read_sql(query, engine)})
             print(f'Table {table} read')
     except SQLAlchemyError as e:
