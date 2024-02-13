@@ -1,16 +1,12 @@
 import mlflow.keras
 import mlflow
 import mlflow.tensorflow
-import umap
-import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.figure_factory as ff
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.decomposition import PCA
 
 def distribution_of_probability(x_test, y_test, path_to_model = None, model_ = None):
+
     if path_to_model is not None:
         model = mlflow.keras.load_model(path_to_model)
     elif model_ is not None:
@@ -50,7 +46,6 @@ def distribution_of_probability_plot(predictions, y_test,show_figure=False):
 
         ax.bar(bar_positions, hist * 10, width, alpha=0.7, label=key, color=bar_color)
 
-        # Add value labels on top of each bar (rotated vertically)
         for x, value in zip(bar_positions, hist * 10):
             ax.text(x + width / 2 - 0.1, value + 1, f'{value:.2f}%', ha='center', va='bottom', rotation='vertical')
 
@@ -60,7 +55,7 @@ def distribution_of_probability_plot(predictions, y_test,show_figure=False):
     ax.set_xticks(bar_positions - width / 2)
     ax.set_xticklabels(x_ticks_labels, fontsize=8)
     ax.legend()
-    ax.set_ylim(0, 75)  # Set y-axis limit to 100%
+    ax.set_ylim(0, 75)  # Set y-axis limit
     
     if show_figure:
         plt.show()
