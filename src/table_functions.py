@@ -229,12 +229,6 @@ def load_csv(file_name):
     df = pd.read_csv(os.path.join(current_dir, '.data', file_name).replace("\\","/"))
     return df
 
-def distinct_machine(final_table):
-    final_table_9 = final_table[final_table['nr_dgm'] == 9]
-    final_table_10 = final_table[final_table['nr_dgm'] == 10]
-
-    return final_table_9, final_table_10
-
 def drop_columns_not_used_in_ml(final_table):
     whole_df = final_table.copy()
     columns = ['rodzaj_kontroli', 'id_dmc_DMC', 'kod_pola', 'rodzaj_uszkodzenia', 
@@ -337,19 +331,3 @@ def over_under_sampling(data, target, samples):
     print('Amount of classes:')
     print(target.value_counts())
     return data, target
-
-def return_x_y_with_specific_status(x_data, y_data, status = 1):
-
-    test_data = pd.concat([x_data, y_data], axis = 1)
-    test_data = test_data[test_data['our_final_status']== status]
-    y_test_one_status = test_data.pop('our_final_status')
-    
-    return test_data, y_test_one_status
-
-def return_first_x_rows(x_train_, x_valid_, x_test_, number_of_rows):
-
-    x_train_ = x_train_.iloc[:, :number_of_rows].copy()
-    x_test_ = x_test_.iloc[:, :number_of_rows].copy()
-    x_valid_ = x_valid_.iloc[:, :number_of_rows].copy()
-
-    return x_train_, x_valid_, x_test_
