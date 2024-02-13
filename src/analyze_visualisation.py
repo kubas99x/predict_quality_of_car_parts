@@ -1,6 +1,5 @@
 import os
 import seaborn as sns
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
@@ -28,41 +27,6 @@ def make_and_save_heatmap(whole_df, col_to_heatmap, file_name):
         plt.title('Correlation Heatmap')
         plt.savefig(os.path.join(parent_dir, 'not_in_repo', file_name))
 
-def make_and_save_barchart(whole_df, col_to_plot, file_name):
-    mean_values_grouped = whole_df.groupby('nr_dgm')[col_to_plot].mean()
-
-    # Plot mean values with grouped bars for each parameter
-    x = np.arange(len(col_to_plot)) 
-    width = 0.35 
-
-    fig, ax = plt.subplots(figsize=(12, 6))
-    bar1 = ax.bar(x - width/2, mean_values_grouped.iloc[0], width, label='nr_dgm = 1')
-    bar2 = ax.bar(x + width/2, mean_values_grouped.iloc[1], width, label='nr_dgm = 2')
-
-    ax.set_xlabel('Columns')
-    ax.set_ylabel('Mean Value')
-    ax.set_title('Mean Values of Specified Columns for nr_dgm=1 and nr_dgm=2')
-    ax.set_xticks(x)
-    ax.set_xticklabels(col_to_plot, rotation=45)
-    ax.legend()
-
-    plt.savefig()
-
-def diff_between_dgm(whole_df, col_to_analyze):
-    mean_values_grouped = whole_df.groupby('nr_dgm')[col_to_analyze].mean()
-    percentage_difference = ((mean_values_grouped.iloc[1] - mean_values_grouped.iloc[0]) / mean_values_grouped.iloc[0]) * 100
-
-    print("Percentage Difference in Mean Values (nr_dgm=2 - nr_dgm=1):")
-    print(percentage_difference)
-
-def make_box_plot(whole_df, column_name):
-
-    fig = px.box(whole_df, y = column_name)
-    fig.show()
-
-    biggest_value_with_1_status = whole_df[whole_df['our_final_status'] == 1][column_name].max()
-    print(biggest_value_with_1_status)
-
 def describe_our_data(whole_df):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_rows', None)
@@ -72,8 +36,8 @@ def describe_our_data(whole_df):
 
 def analyze_data(whole_df):
     #function take random data from dataframe and make pairplots and heatmap for all data
-    status_1_data = whole_df[whole_df['our_final_status'] == 1].sample(n=200, random_state= 69)
-    status_2_data = whole_df[whole_df['our_final_status'] == 2].sample(n=200, random_state= 69)
+    status_1_data = whole_df[whole_df['our_final_status'] == 1].sample(n=200, random_state= 50)
+    status_2_data = whole_df[whole_df['our_final_status'] == 2].sample(n=200, random_state= 50)
     random_to_analyze = pd.concat([status_1_data, status_2_data], ignore_index=True)
 
     col_dgm = ['czas_fazy_1', 'czas_fazy_2', 'czas_fazy_3', 'max_predkosc', 'cisnienie_tloka', 'cisnienie_koncowe','nachdruck_hub', 

@@ -1,8 +1,6 @@
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import LocalOutlierFactor
-#from imblearn.over_sampling import SMOTE
-from sklearn.utils import shuffle
 import pandas as pd
 import os
 
@@ -81,9 +79,6 @@ def combine_final_table(data_, dgm_smallest = 8, dgm_biggest = 10):
     # łączę tabelę MEB_DMC z ONI_CIRCUITS
     final_table = final_table.merge(data['MEB_DMC'], left_on='dmc', right_on='dmc_casting', how='left', suffixes=('_DGM', '_DMC'))
 
-    # duplicate_count_oni = final_table['dmc_DMC'].duplicated(keep=False).sum()
-    # print(f"Number of rows with the same 'dmc' value: {duplicate_count_oni}")
-
     final_table.drop(columns=['nok_strefa_DGM', 'nok_rodzaj_DGM', 'status_ko_DGM', 'kod_pola_DGM', 'rodzaj_uszkodzenia_DGM'], inplace=True)
     final_table.rename(columns={'nok_strefa_DMC': 'nok_strefa', 'nok_rodzaj_DMC': 'nok_rodzaj', 
                                 'status_ko_DMC': 'status_ko', 'kod_pola_DMC': 'kod_pola', 
@@ -130,38 +125,16 @@ def create_final_status(final_table, variant='1'):
     final_table.drop(columns=['status', 'status_ko', 'statusszczelnosc', 'statusdmc', 
                               'part_type', 'nrprogramu', 'id_dmc_DGM', 
                               'id_dmc_DGM', 'dmc_DGM', 'product_id', 'line_id', 
-                              'dmc_DMC', 'dmc_casting', 'nok_strefa', 'nok_rodzaj'], inplace=True)  # 'nr_dgm' na razie nie kasuje bo testuje dane - JR 25.09
-
-    return final_table
-
-def standarize_data(final_table):
-
-    # Ograniczamy wartość maksymalną danych do określonego limitu, by w mniejszym stopniu wpływało to na normalizacje
-
-    final_table.loc[final_table['nachdruck_hub'] > 1000, 'nachdruck_hub'] = 1000
-    final_table.loc[final_table['czas_fazy_1'] > 5000, 'czas_fazy_1'] = 5000
-    final_table.loc[final_table['czas_fazy_3'] > 3000, 'czas_fazy_3'] = 3000
-    final_table.loc[final_table['anguss'] > 800, 'anguss'] = 800
-    final_table.loc[final_table['vds_vac_hose1'] > 1000, 'vds_vac_hose1'] = 1000
+                              'dmc_DMC', 'dmc_casting', 'nok_strefa', 'nok_rodzaj'], inplace=True) 
 
     return final_table
 
 def categorize_data(whole_df):
-    final_table = whole_df.copy()
-    # categorical_columns = []
-    # for name in ['assigment', 'working_mode']:
-    #     for x in range(1,29):
-    #         categorical_columns.append(f'{name}_{x}')
 
-    # categorical_data = final_table[categorical_columns].astype('category')
-    # categorical_data = pd.get_dummies(categorical_data, drop_first=True, dtype=int)
-    
-    
+    final_table = whole_df.copy()
+
     final_table['our_final_status'] = final_table['our_final_status'].astype(int) - 1
     final_table['our_final_status'] = final_table['our_final_status'].astype('category')
-
-    #final_table.drop(columns=categorical_columns, inplace=True)
-    #final_table = pd.concat([final_table, categorical_data], axis=1)
 
     return final_table
 
@@ -202,18 +175,17 @@ def normalize_0_1(whole_df, scaler=None):
 
 def normalize_and_save_to_csv(ml_data, file_name_, normalize_type = 'None'):
     ml_data_ = ml_data.copy()
-    data_keys = ['x_train', 'x_valid', 'x_test', #'x_anomalies',
-                 'y_train', 'y_valid', 'y_test'] #, 'y_anomalies']
+    data_keys = ['x_train', 'x_valid', 'x_test', 
+                 'y_train', 'y_valid', 'y_test']
     if normalize_type == '0_1':
         ml_data_['x_train'], scaler = normalize_0_1(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_0_1(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_0_1(ml_data_['x_test'], scaler)
-        #ml_data_['x_anomalies'] = normalize_0_1(ml_data_['x_anomalies'], scaler)
+
     elif normalize_type == 'standard':
         ml_data_['x_train'], scaler = normalize_data(ml_data_['x_train'])
         ml_data_['x_valid'] = normalize_data(ml_data_['x_valid'], scaler)
         ml_data_['x_test'] = normalize_data(ml_data_['x_test'], scaler)
-        #ml_data_['x_anomalies'] = normalize_data(ml_data_['x_anomalies'], scaler)
 
     for key_ in data_keys:
         save_df_to_csv(ml_data_[key_], f'{key_}_{file_name_}.csv')
@@ -254,7 +226,7 @@ def drop_columns_with_too_much_corr(final_table, corrTreshold = 0.9):
     return final_table_droped, high_corr_features
 
 def read_data_for_traning(fileName):
-    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']#, 'y_anomalies',  'x_anomalies']
+    data_keys = ['x_train', 'x_valid', 'x_test', 'y_train', 'y_valid', 'y_test']
     ml_data_ = {key: None for key in data_keys}
     for key in ml_data_:
         ml_data_[key] = load_csv(f'{key}_{fileName}.csv')
@@ -295,22 +267,17 @@ def split_data(final_table, train_set_size=0.80, samples = 100000):
 
     #nasz parametr klasy:
     'our_final_status'
+
     whole_df = final_table.copy()
     target = whole_df.pop('our_final_status')
-
-    #print('Detecting and removing outliers:')
-    #whole_df, target, x_anomalies, y_anomalies = apply_lof(whole_df, n=n_neighbors)
     
     x_train, x_test, y_train, y_test = train_test_split(whole_df, target, train_size=train_set_size, random_state=42, stratify=target)
     x_train, y_train = over_under_sampling(x_train, y_train, samples)
     x_valid, x_test, y_valid, y_test = train_test_split(x_test, y_test, train_size=0.5, random_state=42, stratify=y_test)
-    #x_valid, y_valid = over_under_sampling(x_valid, y_valid, ok_samples=10000)
-   
 
-    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test, #'x_anomalies': x_anomalies, 
-            'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test} #, 'y_anomalies': y_anomalies}
+    return {'x_train' : x_train, 'x_valid' : x_valid, 'x_test' : x_test,  
+            'y_train' : y_train, 'y_valid' : y_valid, 'y_test' : y_test} 
             
-    # return x_train, x_valid, x_test, y_train, y_valid, y_test
 
 def over_under_sampling(data, target, samples):
 
@@ -330,4 +297,5 @@ def over_under_sampling(data, target, samples):
     
     print('Amount of classes:')
     print(target.value_counts())
+
     return data, target

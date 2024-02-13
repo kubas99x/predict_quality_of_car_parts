@@ -3,10 +3,8 @@ import numpy as np
 import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 from ml_functions import *
-from sklearn.metrics import accuracy_score, recall_score
 from db_queries import USERNAME, PASSWORD, DBHOSTNAME, SERVICE_NAME
 from table_functions import *
-import mlflow.pyfunc
 import xgboost as xgb
 import time
 
