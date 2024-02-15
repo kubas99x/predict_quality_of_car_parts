@@ -2,10 +2,21 @@ import pandas as pd
 import sqlalchemy
 import copy
 from sqlalchemy.exc import SQLAlchemyError
-
-from db_queries import USERNAME, PASSWORD, DBHOSTNAME, SERVICE_NAME, dbtables, queries
 from table_functions import *
 from ml_models.xg_boost import create_xgb_model
+
+# Here is place where You can input Your database's access data
+USERNAME = ""
+PASSWORD = ""
+DBHOSTNAME = ""
+SERVICE_NAME = ""
+
+DBTABLES = [
+    # Place for name of tables from Your database
+]
+QUERIES = [
+    # Place for queries
+]
 
 def read_data_from_database():
     print('Reading from database')
@@ -14,7 +25,7 @@ def read_data_from_database():
     try:
         sqlalchemy_engine="oracle+cx_oracle://"+USERNAME+":"+PASSWORD+"@"+DBHOSTNAME+"/?service_name="+SERVICE_NAME
         engine = sqlalchemy.create_engine(sqlalchemy_engine, arraysize=1000)
-        for table, query in zip(dbtables, queries):
+        for table, query in zip(DBTABLES, QUERIES):
             data.update({table: pd.read_sql(query, engine)})
             print(f'Table {table} read')
     except SQLAlchemyError as e:
@@ -62,19 +73,18 @@ def make_set_for_dgm(all_data, version_of_status, from_dgm=8, to_dgm=10, start_y
     ml_data_dgm = split_data(dgm, samples=(dgm['our_final_status'] == 1).sum() * 2)
     normalize_and_save_to_csv(ml_data_dgm, file_name_=f'dgm{from_dgm}_{to_dgm}_v{version_of_status}_{start_year}')
 
-    return ml_data_dgm
-
 
 if __name__ == '__main__':
 
     data = read_data_from_database()
 
-    data_both_dgm = make_set_for_dgm(data, '1', 9, 10)
-    data_9_dgm = make_set_for_dgm(data, '1', 9, 9)
-    data_10_dgm = make_set_for_dgm(data, '1', 10, 10)
-
-    for dataset, name in zip([data_both_dgm, data_9_dgm, data_9_dgm], ['dgm_9_10', 'dgm_9', 'dgm_10']):
-        create_xgb_model(*dataset.values(), model_name=name, run_name_=name)
-
-
-    
+    # creating sets for pairs [9, 9], [9, 10] and [10, 10]
+    for v in ['1', '2']:
+        # DGM's ID
+        l, r = 9, 9
+        while r != 11:
+            make_set_for_dgm(data, v, l, r)
+            if l == r:
+                r += 1
+            else:
+                l += 1

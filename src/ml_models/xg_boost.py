@@ -77,10 +77,7 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test,  run_name_='st
         mlflow.end_run()
     return model
 
-def create_xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  run_name_='standard_run', threshold=0.9):
-
-    current_working_directory = os.getcwd()
-    mlflow.set_tracking_uri(f"file://{os.path.join(current_working_directory, 'mlruns')}")
+def create_xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name, run_name_='standard_run', threshold=0.9):
 
     mlflow.set_experiment(run_name_)
     mlflow.xgboost.autolog()
@@ -124,4 +121,3 @@ def create_xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_n
         log_params(grid_params)
         log_metrics({'recall_nok': recall_nok, 'recall_ok': recall_ok, 'acc_test': accuracy})
     
-    return model
