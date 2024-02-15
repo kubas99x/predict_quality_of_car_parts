@@ -3,13 +3,10 @@ import numpy as np
 import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 from ml_functions import *
-from db_queries import USERNAME, PASSWORD, DBHOSTNAME, SERVICE_NAME
+from creating_datasets import USERNAME, PASSWORD, DBHOSTNAME, SERVICE_NAME
 from table_functions import *
 import xgboost as xgb
 import time
-
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
 
 # DGM id - oni id_dmc
 # DGM dmc - MEB_DMC dmc_casting
