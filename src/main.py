@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from db_queries import USERNAME, PASSWORD, DBHOSTNAME, SERVICE_NAME, dbtables, queries
 from table_functions import *
+from ml_models.xg_boost import create_xgb_model
 
 def read_data_from_database():
     print('Reading from database')
@@ -61,24 +62,19 @@ def make_set_for_dgm(all_data, version_of_status, from_dgm=8, to_dgm=10, start_y
     ml_data_dgm = split_data(dgm, samples=(dgm['our_final_status'] == 1).sum() * 2)
     normalize_and_save_to_csv(ml_data_dgm, file_name_=f'dgm{from_dgm}_{to_dgm}_v{version_of_status}_{start_year}')
 
+    return ml_data_dgm
+
+
 if __name__ == '__main__':
 
     data = read_data_from_database()
 
-    make_set_for_dgm(data, '1', 9, 10)
-    make_set_for_dgm(data, '1', 9, 10, start_year= 2023)
-    make_set_for_dgm(data, '2', 9, 10)
-    make_set_for_dgm(data, '2', 9, 10, start_year= 2023)
+    data_both_dgm = make_set_for_dgm(data, '1', 9, 10)
+    data_9_dgm = make_set_for_dgm(data, '1', 9, 9)
+    data_10_dgm = make_set_for_dgm(data, '1', 10, 10)
 
-    make_set_for_dgm(data, '1', 9, 9)
-    make_set_for_dgm(data, '1', 9, 9, start_year= 2023)
-    make_set_for_dgm(data, '2', 9, 9)
-    make_set_for_dgm(data, '2', 9, 9, start_year= 2023)
-
-    make_set_for_dgm(data, '1', 10, 10)
-    make_set_for_dgm(data, '1', 10, 10, start_year= 2023)
-    make_set_for_dgm(data, '2', 10, 10)
-    make_set_for_dgm(data, '2', 10, 10, start_year= 2023)
+    for dataset, name in zip([data_both_dgm, data_9_dgm, data_9_dgm], ['dgm_9_10', 'dgm_9', 'dgm_10']):
+        create_xgb_model(*dataset.values(), model_name=name, run_name_=name)
 
 
     

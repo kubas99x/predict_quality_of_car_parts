@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import mlflow
@@ -76,7 +77,10 @@ def xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test,  run_name_='st
         mlflow.end_run()
     return model
 
-def xgb_model_no_grid(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  run_name_='standard_run', comment='no comment', threshold=0.9):
+def create_xgb_model(x_train, x_valid, x_test, y_train, y_valid, y_test, model_name,  run_name_='standard_run', threshold=0.9):
+
+    current_working_directory = os.getcwd()
+    mlflow.set_tracking_uri(f"file://{os.path.join(current_working_directory, 'mlruns')}")
 
     mlflow.set_experiment(run_name_)
     mlflow.xgboost.autolog()
