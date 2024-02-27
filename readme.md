@@ -75,6 +75,10 @@ The aim of our model was to achieve NOK part detection of 50% at class threshold
 
 To choose the besto model for our usecase in addition to use parameters like accuracy, recall etc. we have made plot, that shows distribution of probability for each class on test data. Which help us to choose best model and threshold.
 
-![Pairplot](src/plots/slupki.png)
+![Distribution of probability](src/plots/slupki.png)
+
+Confusion matrix for our model on test data: 
+
+![Confusion matrix](src/plots/conf_matrix.png)
 
 
