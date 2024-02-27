@@ -67,11 +67,11 @@ def make_set_for_dgm(all_data, version_of_status, from_dgm=8, to_dgm=10, start_y
     dgm, high_corr_features_dgm = drop_columns_with_too_much_corr(dgm)
     filtered_data_dgm = filtered_data_dgm.drop(columns= high_corr_features_dgm)
 
-    save_df_to_csv(dgm, f'final_table_{from_dgm}_{to_dgm}_v{version_of_status}_{start_year}.csv')
-    save_df_to_csv(filtered_data_dgm, f'test_{from_dgm}_{to_dgm}_from_october_v{version_of_status}_{start_year}.csv')
+    save_df_to_csv(dgm, f'tfinal_table_{from_dgm}_{to_dgm}_v{version_of_status}_{start_year}.csv')
+    save_df_to_csv(filtered_data_dgm, f'ttest_{from_dgm}_{to_dgm}_from_october_v{version_of_status}_{start_year}.csv')
 
     ml_data_dgm = split_data(dgm, samples=(dgm['our_final_status'] == 1).sum() * 2)
-    normalize_and_save_to_csv(ml_data_dgm, file_name_=f'dgm{from_dgm}_{to_dgm}_v{version_of_status}_{start_year}')
+    normalize_and_save_to_csv(ml_data_dgm, file_name_=f'tdgm{from_dgm}_{to_dgm}_v{version_of_status}_{start_year}')
 
 
 if __name__ == '__main__':
