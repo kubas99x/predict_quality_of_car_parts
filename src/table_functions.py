@@ -94,10 +94,6 @@ def create_final_status(final_table, variant='1'):
     final_table['status'] = final_table['status'].astype(int)
     final_table['nok_rodzaj'] = final_table['nok_rodzaj'].fillna(0)
 
-    print('####################')
-    print('status counts')
-    print(final_table['status'].value_counts())
-
     final_table = final_table.loc[~final_table['status_ko'].isin([0, 106])] # KO
     final_table = final_table.loc[~final_table['statusszczelnosc'].isin([0, 3])]
     final_table = final_table.loc[~final_table['statusdmc'].isin([0,2])]
@@ -105,10 +101,6 @@ def create_final_status(final_table, variant='1'):
     final_table = final_table.loc[final_table['nok_rodzaj'].isin([0, 102, 201, 103, 101])]
     final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([102, 201, 103, 101], 2)
     final_table['nok_rodzaj'] = final_table['nok_rodzaj'].replace([0], 1)
-
-    print('####################')
-    print('nok_rodzaj counts')
-    print(final_table['nok_rodzaj'].value_counts())
 
     if variant == '1':
         final_table = final_table[final_table['status'].isin([0,1,3,14])]

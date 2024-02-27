@@ -5,8 +5,8 @@ DSN = 'vwpnwrud0000rac:1521/dmc.vwg'
 DBHOSTNAME='vwpnwrud0000rac'
 SERVICE_NAME='dmc.vwg'
 
-dbtables = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KO_RODZAJ', 'MEB_KO_STREFA', 'MEB_KS', 'ONI_CIRCUITS']
-queries = [
+DBTABLES = ['MEB_DGM', 'MEB_DMC', 'MEB_GROB', 'MEB_KO', 'MEB_KO_DGM', 'MEB_KO_RODZAJ', 'MEB_KO_STREFA', 'MEB_KS', 'ONI_CIRCUITS']
+QUERIES = [
 """
 SELECT *
 FROM (

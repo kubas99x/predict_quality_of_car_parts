@@ -8,9 +8,6 @@ from table_functions import *
 import xgboost as xgb
 import time
 
-# DGM id - oni id_dmc
-# DGM dmc - MEB_DMC dmc_casting
-
 def read_last_meb_dgm(last_id = 0):
 
     data = {}
@@ -88,9 +85,7 @@ def read_oni(data):
                 result_df = df
             else:
                 result_df = pd.concat([result_df, df], ignore_index=True)
-            #result_df = pd.concat([result_df, df], ignore_index=True)
 
-            
     except SQLAlchemyError as e:
         print(e)
 
@@ -150,7 +145,7 @@ if __name__ == '__main__':
     print('Reading latest id, model and column names')
     newest_id = read_id_from_file()
     columns_needed = pd.read_csv(r'src\pipeline_files\column_names.csv', header=None)[0].tolist()
-    model = xgb.Booster(model_file=r'C:\Users\DLXPMX8\Desktop\Projekt_AI\meb_process_data_analysis\src\final_model\model\model.xgb')
+    model = xgb.Booster(model_file=r'.\final_model\model\model.xgb')
     
     while True:
         
