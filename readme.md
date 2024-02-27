@@ -6,7 +6,7 @@ The purpose of the project is to detect NOK parts immediately after the casting 
 
 1. [About](#about)
 2. [Features](#features)
-3. [Installation](#installation)
+3. [File structure](#filestructure)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
 6. [License](#license)
@@ -19,20 +19,39 @@ This problem is solved by our project. Which, based on casting parameters such a
 
 As a result, we are able to reject a part that does not meet the quality requirements after the first production process, saving both time and money on part processing.
 
-This project uses supervised learning techniques to perform binary classification based on historical data. The classification includes two classes: 0 - OK and 1 - NOK.
+This project uses supervised learning techniques to perform binary classification based on historical data. The classification includes two classes: 
+
+**0 - OK**
+
+**1 - NOK**
 
 ## Features
 
-List the key features of your project. You can use bullet points for better readability.
+The total scope of the project included:
 
-- Feature 1
-- Feature 2
-- Feature 3
+• reading the data from database (historical data);
 
-## Installation
+• dataset analysis and data processing;
 
-Provide instructions on how to install your project. Include any prerequisites and steps necessary for setup.
+• choosing proper model to work with this task;
 
-```bash
-# Example installation command
-npm install my-project
+• parametrizing model during teaching process;
+
+• creating pipeline to work with production data;
+
+
+## File structure
+
+creating_datasets.py - Main file that executes functions to create, train, test and validate datasets for different machines.
+
+table_functions.py - Functions to drop unused columns, combine final table, define prediction class, normalise and standardise data, over- and under-sample, drop columns with too much correlation.
+
+analyze_visualisation.py - Functions to analyse the data (pair plots, heat maps etc.)
+
+ml_functions.py - Functions to create confusion matrix, distribution of probability for specific class
+
+pipeline.py - Program to live-load latest records from database and make predictions
+
+ml_models directory - Python files for each ML algorithm like xgboost, neural networks, random forest etc.
+
+
