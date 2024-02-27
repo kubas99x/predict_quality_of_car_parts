@@ -6,7 +6,7 @@ The purpose of the project is to detect NOK parts immediately after the casting 
 
 1. [About](#about)
 2. [Features](#features)
-3. [File structure](#file structure)
+3. [File structure](#file-structure)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
 6. [License](#license)
@@ -42,16 +42,16 @@ The total scope of the project included:
 
 ## File structure
 
-creating_datasets.py - Main file that executes functions to create, train, test and validate datasets for different machines.
+[creating_datasets.py](creating_datasets.py) - Main file that executes functions to create, train, test and validate datasets for different machines.
 
-table_functions.py - Functions to drop unused columns, combine final table, define prediction class, normalise and standardise data, over- and under-sample, drop columns with too much correlation.
+[table_functions.py](table_functions.py) - Functions to drop unused columns, combine final table, define prediction class, normalise and standardise data, over- and under-sample, drop columns with too much correlation.
 
-analyze_visualisation.py - Functions to analyse the data (pair plots, heat maps etc.)
+[analyze_visualisation.py](analyze_visualisation.py) - Functions to analyse the data (pair plots, heat maps etc.)
 
-ml_functions.py - Functions to create confusion matrix, distribution of probability for specific class
+[ml_functions.py](ml_functions.py) - Functions to create confusion matrix, distribution of probability for specific class
 
-pipeline.py - Program to live-load latest records from database and make predictions
+[pipeline.py](pipeline.py) - Program to live-load latest records from database and make predictions
 
-ml_models directory - Python files for each ML algorithm like xgboost, neural networks, random forest etc.
+[ml_models directory](ml_models) - Python files for each ML algorithm like xgboost, neural networks, random forest etc.
 
 
