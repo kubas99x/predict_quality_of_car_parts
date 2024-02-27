@@ -57,7 +57,7 @@ The total scope of the project included:
 
 ## Data
 
-Database that we work with contains more than 300 parameters and 1 500 000 records. It means that for each part we have about 300 parameters, where most of them is from casting process.
+Database that we work with contains more than **300** parameters and **1 500 000** records. It means that for each part we have about **300** parameters, where most of them is from casting process.
 Data properties:
 
 1. In most cases, parameters for OK and NOK parts are smiliar.
@@ -70,13 +70,13 @@ Data properties:
 
 ## Model
 
-The aim of our model was to achieve NOK part detection of 50% at decision threshold at level of 0,9. That the model will predict part as NOK with very high probability. Finally we achived NOK part detection of 60%. To find the best model for our usecase we tested few algorithms: decision tree, random forest, neural networks, xg_boost. The best performance had **xgboost**.
+The aim of our model was to achieve NOK part detection of **50%** at decision threshold at level of **0,9**. That the model will predict part as NOK with very high probability. Finally we achived NOK part detection of **60%**. To find the best model for our usecase we tested few algorithms: decision tree, random forest, neural networks, xg_boost. The best performance had **xgboost**.
 
 To choose the besto model for our usecase in addition to use parameters like accuracy, recall etc. we have made plot, that shows distribution of probability for each class on test data. Which help us to choose best model and threshold.
 
 ![Distribution of probability](src/plots/slupki.png)
 
-Confusion matrix for our model on test data, with the classification threshold = 0.925: 
+Confusion matrix for our model on test data, with the classification **threshold = 0.925**: 
 
 ![Confusion matrix](src/plots/conf_matrix.png)
 
