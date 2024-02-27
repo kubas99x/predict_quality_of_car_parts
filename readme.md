@@ -6,7 +6,7 @@ The purpose of the project is to detect NOK parts immediately after the casting 
 
 1. [About](#about)
 2. [Features](#features)
-3. [File structure](#filestructure)
+3. [File structure](#file structure)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
 6. [License](#license)
