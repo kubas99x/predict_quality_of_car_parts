@@ -42,7 +42,7 @@ The total scope of the project included:
 
 ## File structure
 
-[creating_datasets.py](creating_datasets.py) - Main file that executes functions to create, train, test and validate datasets for different machines.
+[creating_datasets.py](src/creating_datasets.py) - Main file that executes functions to create, train, test and validate datasets for different machines.
 
 [table_functions.py](table_functions.py) - Functions to drop unused columns, combine final table, define prediction class, normalise and standardise data, over- and under-sample, drop columns with too much correlation.
 
