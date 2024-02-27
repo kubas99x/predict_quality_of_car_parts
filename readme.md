@@ -7,8 +7,8 @@ The purpose of the project is to detect NOK parts immediately after the casting 
 1. [About](#about)
 2. [Features](#features)
 3. [File structure](#file-structure)
-4. [Usage](#usage)
-5. [Contributing](#contributing)
+4. [Data](#data)
+5. [Model](#model)
 6. [License](#license)
 
 ## About
@@ -33,6 +33,8 @@ The total scope of the project included:
 
 • dataset analysis and data processing;
 
+• implement mlflow to save and analyse trained models
+
 • choosing proper model to work with this task;
 
 • parametrizing model during teaching process;
@@ -44,14 +46,35 @@ The total scope of the project included:
 
 [creating_datasets.py](src/creating_datasets.py) - Main file that executes functions to create, train, test and validate datasets for different machines.
 
-[table_functions.py](table_functions.py) - Functions to drop unused columns, combine final table, define prediction class, normalise and standardise data, over- and under-sample, drop columns with too much correlation.
+[table_functions.py](src/table_functions.py) - Functions to drop unused columns, combine final table, define prediction class, normalise and standardise data, over- and under-sample, drop columns with too much correlation.
 
-[analyze_visualisation.py](analyze_visualisation.py) - Functions to analyse the data (pair plots, heat maps etc.)
+[analyze_visualisation.py](src/analyze_visualisation.py) - Functions to analyse the data (pair plots, heat maps etc.)
 
-[ml_functions.py](ml_functions.py) - Functions to create confusion matrix, distribution of probability for specific class
+[ml_functions.py](src/ml_functions.py) - Functions to create confusion matrix, distribution of probability for specific class
 
-[pipeline.py](pipeline.py) - Program to live-load latest records from database and make predictions
+[pipeline.py](src/pipeline.py) - Program to live-load latest records from database and make predictions
 
-[ml_models directory](ml_models) - Python files for each ML algorithm like xgboost, neural networks, random forest etc.
+[ml_models directory](src/ml_models) - Python files for each ML algorithm like xgboost, neural networks, random forest etc.
+
+## Data
+
+Database that we work with contains more than 300 parameters and 1 500 000 records. It means that for each part we have about 300 parameters, where most of them is from casting process.
+Data properties:
+
+1. In most cases, parameters for OK and NOK parts are smiliar.
+
+![Pairplot](src/plots/pairplot.png)
+
+2. Most of the data was higly correlated, so we need to reject them from dataset
+
+![Correlation heatmap](src/plots/corr_heatmap.png)
+
+## Model
+
+The aim of our model was to achieve NOK part detection of 50% at class threshold at level of 0,9. That the model will predict part as NOK with very high probability. Finally we achived NOK part detection of 60%. To find the best model for our usecase we tested few algorithms: decision tree, random forest, neural networks, xg_boost. The best performance had **xgboost**.
+
+To choose the besto model for our usecase in addition to use parameters like accuracy, recall etc. we have made plot, that shows distribution of probability for each class on test data. Which help us to choose best model and threshold.
+
+![Pairplot](src/plots/slupki.png)
 
 
